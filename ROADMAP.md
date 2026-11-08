@@ -6,7 +6,7 @@ A lightweight browser-based 20-questions game where the player asks yes/no quest
 
 ## Current State (v0.2 - In Progress)
 - Tech stack: Lightweight frontend (Vanilla JS / HTML5 / CSS)
-- AI Engine: Google Gemini API (Gemini 1.5 Flash)
+- AI Engine: Google Gemini API (Gemini 3.8 Flash)
 - Structured output: `answer` ("yes", "no", "sometimes", "unsure") + `confidence` ("high", "low")
 - LocalStorage persistence for user API key
 - Guess normalization with fuzzy and plural tolerance
@@ -16,7 +16,7 @@ A lightweight browser-based 20-questions game where the player asks yes/no quest
 ## Phase 1: Gemini Engine & Core Stabilization (v0.2)
 **Goal**: Make the core game loop fast, reliable, and powered by Google Gemini without needing a backend server.
 
-- [x] Migrate AI caller from Anthropic to Google Gemini (`gemini-1.5-flash` / `gemini-2.0-flash`)
+- [x] Migrate AI caller from Anthropic to Google Gemini (`gemini-3.8-flash`)
 - [x] Use Gemini structured output (`response_mime_type: "application/json"`) to strictly enforce valid responses and prevent secret leakage
 - [x] Persist API key in `localStorage` so players don't have to re-paste on page reload
 - [x] Improve guess matching for edge cases (articles, plurals, minor typos/fuzzy matching)
