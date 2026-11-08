@@ -24,6 +24,7 @@ A lightweight browser-based 20-questions game where the player asks yes/no quest
 - [x] Added "Test Key" diagnostic tool to verify API keys instantly in-browser
 - [x] Sane 15s timeout with real-time second-by-second countdown in UI
 - [x] Improve guess matching for edge cases (articles, plurals, minor typos/fuzzy matching)
+- [x] Flexible perspective prompt: automatically maps first-person ("Am I an actor?"), third-person ("Is he an actor?"), and descriptive ("Can you eat it?") questions directly to the secret item without answering "unsure"
 
 ---
 
