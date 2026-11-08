@@ -370,6 +370,10 @@
       <label for="apiKey">Google Gemini API Key</label>
       <input id="apiKey" type="password" placeholder="AIzaSy...">
       <div id="keyStatus" class="key-status empty">No API key set</div>
+      <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
+        <button id="testKeyBtn" type="button" style="padding: 5px 12px; border-radius: 6px; background: var(--bg); border: 1px solid var(--border); cursor: pointer; font-size: 0.775rem; font-weight: 500;">🔍 Test Key &amp; List Models</button>
+        <span id="testKeyResult" style="font-size: 0.75rem; color: var(--muted);"></span>
+      </div>
       <p class="settings-help">
         Stored in browser <code>localStorage</code> only.
         Get a free API key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>.
@@ -378,9 +382,9 @@
     <div class="settings-row">
       <label for="modelSelect">Gemini Model</label>
       <select id="modelSelect">
-        <option value="gemini-3.8-flash" selected>Gemini 3.8 Flash (Latest, Fast &amp; Recommended)</option>
-        <option value="gemini-2.5-flash">Gemini 2.5 Flash</option>
-        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Legacy)</option>
+        <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash (Recommended - High Capacity)</option>
+        <option value="gemini-3.8-flash">Gemini 3.8 Flash (Latest - High Demand Spikes Possible)</option>
+        <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fallback)</option>
       </select>
     </div>
     <div class="settings-row">
@@ -464,11 +468,11 @@
   // ============ SETTINGS PERSISTENCE ============
   function loadSettings() {
     const savedKey = getStorage(STORAGE_KEY_API, "");
-    let savedModel = getStorage(STORAGE_KEY_MODEL, "gemini-3.8-flash");
+    let savedModel = getStorage(STORAGE_KEY_MODEL, "gemini-2.5-flash");
 
     // Upgrade deprecated or discontinued models
     if (savedModel === "gemini-2.0-flash" || !savedModel) {
-      savedModel = "gemini-3.8-flash";
+      savedModel = "gemini-2.5-flash";
       setStorage(STORAGE_KEY_MODEL, savedModel);
     }
     
@@ -509,6 +513,38 @@
   if (timeoutSelect) {
     timeoutSelect.addEventListener("change", () => {
       setStorage(STORAGE_KEY_TIMEOUT, timeoutSelect.value);
+    });
+  }
+
+  const testKeyBtn = document.getElementById("testKeyBtn");
+  const testKeyResult = document.getElementById("testKeyResult");
+
+  if (testKeyBtn) {
+    testKeyBtn.addEventListener("click", async () => {
+      const apiKey = apiKeyInput.value.trim() || getStorage(STORAGE_KEY_API, "");
+      if (!apiKey) {
+        testKeyResult.textContent = "Please enter an API key first.";
+        testKeyResult.style.color = "var(--no)";
+        return;
+      }
+      testKeyResult.textContent = "Querying Google AI Studio models...";
+      testKeyResult.style.color = "var(--muted)";
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`);
+        if (!res.ok) {
+          const t = await res.text();
+          throw new Error(`HTTP ${res.status}: ${t.slice(0, 90)}`);
+        }
+        const data = await res.json();
+        const flashModels = (data.models || [])
+          .map(m => m.name.replace("models/", ""))
+          .filter(m => m.includes("flash") || m.includes("gemini"));
+        testKeyResult.textContent = `✓ Key Valid! Available: ${flashModels.slice(0, 4).join(", ")}`;
+        testKeyResult.style.color = "var(--yes)";
+      } catch (err) {
+        testKeyResult.textContent = `✗ ${err.message}`;
+        testKeyResult.style.color = "var(--no)";
+      }
     });
   }
 
@@ -704,14 +740,14 @@
     throw new Error("Unable to parse response: " + JSON.stringify(data).slice(0, 100));
   }
 
-  async function askGemini(question) {
+  async function askGemini(question, attempt = 0, overrideModel = null) {
     const apiKey = apiKeyInput.value.trim() || getStorage(STORAGE_KEY_API, "") || "";
     if (!apiKey) {
       settingsDrawer.open = true;
       throw new Error("No Gemini API key found. Please paste your key in Settings below.");
     }
 
-    const model = modelSelect.value || "gemini-3.8-flash";
+    const model = overrideModel || modelSelect.value || "gemini-2.5-flash";
     const timeoutSec = parseInt(timeoutSelect?.value || getStorage(STORAGE_KEY_TIMEOUT, "45"), 10) || 45;
 
     const systemPrompt = `You are the secret keeper in a 20-questions guessing game ("Guess What's on Your Head").
@@ -769,7 +805,7 @@ Rules:
       }
     };
 
-    console.log(`Asking Gemini (${model})... Timeout: ${timeoutSec}s`, { question });
+    console.log(`Asking Gemini (${model})... Attempt: ${attempt + 1}, Timeout: ${timeoutSec}s`, { question });
 
     async function execFetch(url, body) {
       const controller = new AbortController();
@@ -824,14 +860,37 @@ Rules:
         msg = `${msg}: ${errText.slice(0, 140)}`;
       }
 
-      console.error("Gemini API error details:", { status: response.status, msg, usedEndpoint });
+      console.error("Gemini API error details:", { status: response.status, msg, usedEndpoint, model });
+
+      // Handle 503 Service Unavailable / High Demand with automatic fallback
+      const isHighDemand = response.status === 503 || msg.toLowerCase().includes("high demand") || msg.toLowerCase().includes("overloaded");
+      if (isHighDemand && attempt < 3) {
+        if (attempt === 0) {
+          console.warn(`Model "${model}" busy (503). Retrying in 2s (attempt 1)...`);
+          statusEl.textContent = `High traffic on ${model}. Retrying in 2s...`;
+          await new Promise(r => setTimeout(r, 2000));
+          return askGemini(question, attempt + 1, model);
+        } else {
+          const CASCADE = ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-3.8-flash"];
+          const fallbackModel = CASCADE.find(m => m !== model) || "gemini-2.5-flash";
+          console.warn(`Model "${model}" still busy. Auto-switching to ${fallbackModel}...`);
+          addBubble(`⚡ Note: "${model}" is at capacity on Google's servers. Auto-switching to "${fallbackModel}"...`, "system");
+          modelSelect.value = fallbackModel;
+          setStorage(STORAGE_KEY_MODEL, fallbackModel);
+          await new Promise(r => setTimeout(r, 1200));
+          return askGemini(question, attempt + 1, fallbackModel);
+        }
+      }
 
       if (response.status === 400 && msg.toLowerCase().includes("api_key")) {
         settingsDrawer.open = true;
         throw new Error("Invalid Google Gemini API key. Please check your key in Settings.");
       }
       if (response.status === 429) {
-        throw new Error("Gemini quota/rate limit exceeded. Please wait a moment and try again.");
+        throw new Error("Gemini rate limit exceeded. Please wait a few seconds and ask again.");
+      }
+      if (isHighDemand) {
+        throw new Error("Google servers are temporarily experiencing high demand across all models. Please wait a few moments and try again.");
       }
       throw new Error(msg);
     }
