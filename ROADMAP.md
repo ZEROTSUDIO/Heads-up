@@ -7,7 +7,7 @@ A browser game where the player asks yes/no questions about a secret, and an AI 
 - Single file: `index.html`
 - Five static categories: celebrities, animals, countries, food, objects
 - Secret picked at random from a hardcoded list
-- AI answers via the Anthropic API, called directly from the browser
+- AI answers via AI models, called directly from the browser
 - Guess checking with normalization and close-match matching
 - 20-question limit, give up button, play again
 - Not yet tested in a real browser
@@ -41,7 +41,6 @@ Goal: make each round more fun and engaging.
 Goal: make the secret pool large and varied.
 
 - [ ] Move word lists into a separate `words.json` file for easier editing
-- [ ] Expand each category to 50+ entries
 - [ ] Add more categories: movies, books, places, professions, historical figures
 - [ ] Add difficulty tags to each entry so easy and hard modes use different pools
 - [ ] Avoid repeats within a session (shuffle and track what's been used)
@@ -114,7 +113,6 @@ Goal: give the AI a face so answers feel like a friend's reaction, and show unce
 Goal: a finished product ready for others to use.
 
 - [ ] Clean UI with a proper design pass (the current one is minimal)
-- [ ] Dark mode
 - [ ] Accessibility: keyboard navigation, screen reader labels, sufficient color contrast
 - [ ] Localization (Indonesian and English)
 - [ ] Onboarding screen explaining the rules
@@ -123,11 +121,7 @@ Goal: a finished product ready for others to use.
 
 ---
 
-## Open questions
 
-- Should the game stay free, or will it need a paid tier to cover API costs?
-- Is the target audience just you and friends, or the public?
-- Which language should the secrets and answers use by default?
 
 ## Notes
 
