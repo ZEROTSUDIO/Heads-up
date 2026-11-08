@@ -383,6 +383,15 @@
         <option value="gemini-1.5-flash">Gemini 1.5 Flash (Legacy)</option>
       </select>
     </div>
+    <div class="settings-row">
+      <label for="timeoutSelect">Request Timeout</label>
+      <select id="timeoutSelect">
+        <option value="30">30 seconds</option>
+        <option value="45" selected>45 seconds (Recommended for slower networks)</option>
+        <option value="60">60 seconds</option>
+        <option value="90">90 seconds</option>
+      </select>
+    </div>
   </div>
 </details>
 
@@ -391,6 +400,7 @@
   const MAX_QUESTIONS = 20;
   const STORAGE_KEY_API = "headsup_gemini_api_key";
   const STORAGE_KEY_MODEL = "headsup_gemini_model";
+  const STORAGE_KEY_TIMEOUT = "headsup_gemini_timeout";
 
   // ============ WORD LISTS ============
   const categories = {
@@ -422,6 +432,7 @@
   const apiKeyInput = document.getElementById("apiKey");
   const keyStatus = document.getElementById("keyStatus");
   const modelSelect = document.getElementById("modelSelect");
+  const timeoutSelect = document.getElementById("timeoutSelect");
   const settingsDrawer = document.getElementById("settingsDrawer");
   const categoryButtons = document.querySelectorAll(".categories button");
 
@@ -471,6 +482,11 @@
     }
 
     modelSelect.value = savedModel;
+
+    const savedTimeout = getStorage(STORAGE_KEY_TIMEOUT, "45");
+    if (timeoutSelect) {
+      timeoutSelect.value = savedTimeout;
+    }
   }
 
   apiKeyInput.addEventListener("input", () => {
@@ -489,6 +505,12 @@
   modelSelect.addEventListener("change", () => {
     setStorage(STORAGE_KEY_MODEL, modelSelect.value);
   });
+
+  if (timeoutSelect) {
+    timeoutSelect.addEventListener("change", () => {
+      setStorage(STORAGE_KEY_TIMEOUT, timeoutSelect.value);
+    });
+  }
 
   // ============ HELPERS ============
   function addBubble(text, type, extraClass = "") {
@@ -634,7 +656,55 @@
   }
 
   // ============ GEMINI API INTEGRATION ============
-  async function askGemini(question, retryCount = 0) {
+  function parseAnswerRaw(rawText) {
+    const clean = (rawText || "").trim();
+    let parsed = null;
+    try {
+      parsed = JSON.parse(clean);
+    } catch (err) {
+      const ansMatch = clean.match(/"answer"\s*:\s*"(\w+)"/i) || clean.match(/\b(yes|no|sometimes|unsure)\b/i);
+      const confMatch = clean.match(/"confidence"\s*:\s*"(\w+)"/i) || clean.match(/\b(high|low)\b/i);
+      parsed = {
+        answer: ansMatch ? ansMatch[1].toLowerCase() : "unsure",
+        confidence: confMatch ? confMatch[1].toLowerCase() : "high"
+      };
+    }
+
+    const answer = ["yes", "no", "sometimes", "unsure"].includes(parsed?.answer?.toLowerCase())
+      ? parsed.answer.toLowerCase()
+      : "unsure";
+    const confidence = ["high", "low"].includes(parsed?.confidence?.toLowerCase())
+      ? parsed.confidence.toLowerCase()
+      : "high";
+    return { answer, confidence };
+  }
+
+  function extractAnswerFromGemini(data) {
+    // 1. Direct output_text (Interactions API / SDK)
+    if (data.output_text) {
+      return parseAnswerRaw(data.output_text);
+    }
+
+    // 2. Interactions API steps
+    if (Array.isArray(data.steps) && data.steps.length > 0) {
+      const modelStep = [...data.steps].reverse().find(s => s.step_type === "model_output") || data.steps[data.steps.length - 1];
+      const text = modelStep?.content?.parts?.[0]?.text || modelStep?.text;
+      if (text) return parseAnswerRaw(text);
+    }
+
+    // 3. Legacy generateContent candidates
+    if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+      return parseAnswerRaw(data.candidates[0].content.parts[0].text);
+    }
+
+    if (data.candidates?.[0]?.finishReason === "SAFETY") {
+      return { answer: "unsure", confidence: "low" };
+    }
+
+    throw new Error("Unable to parse response: " + JSON.stringify(data).slice(0, 100));
+  }
+
+  async function askGemini(question) {
     const apiKey = apiKeyInput.value.trim() || getStorage(STORAGE_KEY_API, "") || "";
     if (!apiKey) {
       settingsDrawer.open = true;
@@ -642,7 +712,7 @@
     }
 
     const model = modelSelect.value || "gemini-3.8-flash";
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const timeoutSec = parseInt(timeoutSelect?.value || getStorage(STORAGE_KEY_TIMEOUT, "45"), 10) || 45;
 
     const systemPrompt = `You are the secret keeper in a 20-questions guessing game ("Guess What's on Your Head").
 The secret item is: "${secret}" (Category: "${secretCategory}").
@@ -659,16 +729,11 @@ Rules:
    - "low": if the question is an ambiguous or borderline edge case.
 3. CRITICAL: Never reveal, spell, recite, or hint at the secret item's name directly. Always respond using the requested JSON schema.`;
 
-    const requestBody = {
-      contents: [
-        {
-          role: "user",
-          parts: [{ text: `Question: ${question}` }]
-        }
-      ],
-      systemInstruction: {
-        parts: [{ text: systemPrompt }]
-      },
+    // Standard generateContent payload (no custom headers to avoid CORS preflight stalls)
+    const generateContentUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const generateContentPayload = {
+      contents: [{ role: "user", parts: [{ text: `Question: ${question}` }] }],
+      systemInstruction: { parts: [{ text: systemPrompt }] },
       generationConfig: {
         temperature: 0.1,
         maxOutputTokens: 60,
@@ -676,29 +741,75 @@ Rules:
         responseSchema: {
           type: "OBJECT",
           properties: {
-            answer: {
-              type: "STRING",
-              enum: ["yes", "no", "sometimes", "unsure"]
-            },
-            confidence: {
-              type: "STRING",
-              enum: ["high", "low"]
-            }
+            answer: { type: "STRING", enum: ["yes", "no", "sometimes", "unsure"] },
+            confidence: { type: "STRING", enum: ["high", "low"] }
           },
           required: ["answer", "confidence"]
         }
       }
     };
 
+    // Interactions API payload (used if model requires Interactions endpoint)
+    const interactionsUrl = `https://generativelanguage.googleapis.com/v1beta/interactions?key=${encodeURIComponent(apiKey)}`;
+    const interactionsPayload = {
+      model: model,
+      input: `Question: ${question}`,
+      system_instruction: systemPrompt,
+      response_format: {
+        type: "text",
+        mime_type: "application/json",
+        schema: {
+          type: "object",
+          properties: {
+            answer: { type: "string", enum: ["yes", "no", "sometimes", "unsure"] },
+            confidence: { type: "string", enum: ["high", "low"] }
+          },
+          required: ["answer", "confidence"]
+        }
+      }
+    };
+
+    console.log(`Asking Gemini (${model})... Timeout: ${timeoutSec}s`, { question });
+
+    async function execFetch(url, body) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), timeoutSec * 1000);
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(body),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+        return res;
+      } catch (err) {
+        clearTimeout(timeoutId);
+        if (err.name === "AbortError") {
+          throw new Error(`Request timed out (${timeoutSec}s). Check internet connection or increase timeout in Settings.`);
+        }
+        throw err;
+      }
+    }
+
     let response;
+    let usedEndpoint = "generateContent";
     try {
-      response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestBody)
-      });
-    } catch (networkErr) {
-      throw new Error("Network connection error. Check your internet connection.");
+      response = await execFetch(generateContentUrl, generateContentPayload);
+      if (!response.ok) {
+        const errPeek = await response.clone().text();
+        if (errPeek.includes("Interactions API") || response.status === 404) {
+          console.warn("generateContent advised Interactions API, switching to /interactions...");
+          usedEndpoint = "interactions";
+          response = await execFetch(interactionsUrl, interactionsPayload);
+        }
+      }
+    } catch (err) {
+      console.warn("generateContent request failed, trying interactions endpoint...", err);
+      usedEndpoint = "interactions";
+      response = await execFetch(interactionsUrl, interactionsPayload);
     }
 
     if (!response.ok) {
@@ -713,16 +824,7 @@ Rules:
         msg = `${msg}: ${errText.slice(0, 140)}`;
       }
 
-      // Detect deprecated model and auto-upgrade
-      const modelSuggestion = msg.match(/use\s+models\/([a-zA-Z0-9.-]+)/i);
-      const isUnavailable = msg.includes("no longer available") || response.status === 404;
-      if (retryCount === 0 && (modelSuggestion || isUnavailable)) {
-        const targetModel = modelSuggestion ? modelSuggestion[1] : "gemini-3.8-flash";
-        console.warn(`Model "${model}" is discontinued. Auto-upgrading to "${targetModel}"...`);
-        modelSelect.value = targetModel;
-        setStorage(STORAGE_KEY_MODEL, targetModel);
-        return askGemini(question, retryCount + 1);
-      }
+      console.error("Gemini API error details:", { status: response.status, msg, usedEndpoint });
 
       if (response.status === 400 && msg.toLowerCase().includes("api_key")) {
         settingsDrawer.open = true;
@@ -735,32 +837,8 @@ Rules:
     }
 
     const data = await response.json();
-    const candidate = data.candidates?.[0];
-
-    if (!candidate || !candidate.content?.parts?.[0]?.text) {
-      if (candidate?.finishReason === "SAFETY") {
-        return { answer: "unsure", confidence: "low" };
-      }
-      throw new Error("Received an empty response from Gemini.");
-    }
-
-    const rawText = candidate.content.parts[0].text.trim();
-    let parsed = null;
-    try {
-      parsed = JSON.parse(rawText);
-    } catch (err) {
-      // Fallback regex matching in case schema is wrapped
-      const ansMatch = rawText.match(/"answer"\s*:\s*"(\w+)"/i) || rawText.match(/\b(yes|no|sometimes|unsure)\b/i);
-      const confMatch = rawText.match(/"confidence"\s*:\s*"(\w+)"/i) || rawText.match(/\b(high|low)\b/i);
-      parsed = {
-        answer: ansMatch ? ansMatch[1].toLowerCase() : "unsure",
-        confidence: confMatch ? confMatch[1].toLowerCase() : "high"
-      };
-    }
-
-    const answer = ["yes", "no", "sometimes", "unsure"].includes(parsed.answer) ? parsed.answer : "unsure";
-    const confidence = ["high", "low"].includes(parsed.confidence) ? parsed.confidence : "high";
-    return { answer, confidence };
+    console.log("Gemini API response:", data);
+    return extractAnswerFromGemini(data);
   }
 
   // ============ GAME FLOW ============
@@ -821,20 +899,31 @@ Rules:
     updateCounter();
     setBusy(true);
 
-    const thinking = addBubble("Thinking...", "bot", "thinking");
+    const thinking = addBubble("Thinking... (0s)", "bot", "thinking");
+    let elapsed = 0;
+    const ticker = setInterval(() => {
+      elapsed++;
+      thinking.textContent = `Thinking... (${elapsed}s)`;
+    }, 1000);
 
     try {
       const result = await askGemini(question);
+      clearInterval(ticker);
       thinking.remove();
       addAnswerBubble(result.answer, result.confidence);
     } catch (err) {
+      clearInterval(ticker);
       thinking.remove();
+      console.error("Ask error:", err);
       addBubble(`Error: ${err.message}`, "system");
       questionCount--; // don't count a failed question
       updateCounter();
+    } finally {
+      clearInterval(ticker);
+      thinking?.remove();
+      setBusy(false);
     }
 
-    setBusy(false);
     if (!gameOver && questionCount >= MAX_QUESTIONS) {
       endGame(false);
     } else {
