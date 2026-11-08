@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guess What's on Your Head</title>
+<style>
+  :root {
+    --bg: #f5f3ef;
+    --card: #ffffff;
+    --text: #222;
+    --muted: #777;
+    --accent: #5b5bd6;
+    --yes: #2e9e5b;
+    --no: #d64545;
+    --sometimes: #c98a10;
+    --border: #e2dfd8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    padding: 14px 16px 8px;
+    text-align: center;
+  }
+  header h1 { font-size: 1.25rem; margin: 0; }
+  #counter { font-size: 0.85rem; color: var(--muted); margin-top: 4px; }
+
+  .categories {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 8px 16px;
+    scrollbar-width: none;
+  }
+  .categories::-webkit-scrollbar { display: none; }
+  .categories button {
+    flex: 0 0 auto;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .categories button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .categories button:disabled { opacity: 0.5; cursor: default; }
+
+  #chat {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .bubble {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    line-height: 1.4;
+    word-wrap: break-word;
+  }
+  .bubble.user { align-self: flex-end; background: var(--accent); color: #fff; border-bottom-right-radius: 4px; }
+  .bubble.bot { align-self: flex-start; background: var(--card); border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+  .bubble.system { align-self: center; color: var(--muted); font-size: 0.9rem; text-align: center; }
+  .answer { font-weight: 600; }
+  .answer.yes { color: var(--yes); }
+  .answer.no { color: var(--no); }
+  .answer.sometimes, .answer.unsure { color: var(--sometimes); }
+  .thinking { color: var(--muted); font-style: italic; }
+
+  .banner {
+    align-self: stretch;
+    text-align: center;
+    padding: 14px;
+    border-radius: 12px;
+    background: var(--card);
+    border: 2px solid var(--accent);
+  }
+  .banner button {
+    margin-top: 8px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .input-bar {
+    display: flex;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--card);
+    border-top: 1px solid var(--border);
+    position: sticky;
+    bottom: 0;
+  }
+  .input-bar input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 1rem;
+    min-width: 0;
+  }
+  .input-bar button {
+    padding: 10px 14px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+  .input-bar button.guess { background: #333; }
+  .input-bar button:disabled { opacity: 0.5; cursor: default; }
+  .input-bar.guess-mode input { border-color: #333; }
+
+  footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 16px 10px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    background: var(--card);
+  }
+  footer button, details summary {
+    background: none;
+    border: none;
+    color: var(--accent);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
+  }
+  details { padding: 0 16px 8px; background: var(--card); font-size: 0.85rem; }
+  details input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 6px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: monospace;
+  }
+  details p { color: var(--muted); margin: 6px 0 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Guess What's on Your Head</h1>
+  <div id="counter">Pick a category to start</div>
+</header>
+
+<div class="categories" id="categories">
+  <button data-category="celebrities">Celebrities</button>
+  <button data-category="animals">Animals</button>
+  <button data-category="countries">Countries</button>
+  <button data-category="food">Food</button>
+  <button data-category="objects">Objects</button>
+</div>
+
+<div id="chat"></div>
+
+<div class="input-bar" id="inputBar">
+  <input id="input" type="text" placeholder="Ask a yes/no question..." disabled autocomplete="off">
+  <button id="askBtn" disabled>Ask</button>
+  <button id="guessBtn" class="guess" disabled>Guess</button>
+</div>
+
+<footer>
+  <span id="status"></span>
+  <button id="giveUpBtn" disabled>Give up / show secret</button>
+</footer>
+
+<details>
+  <summary>Settings</summary>
+  <input id="apiKey" type="password" placeholder="Paste your API key here">
+  <p>Your key stays in this browser only. Anyone who can open the page's developer tools can see it.</p>
+</details>
+
+<script>
+  // ============ CONFIG ============
+  const MODEL = "claude-haiku-5-5";
+  const MAX_QUESTIONS = 20;
+  const API_URL = "https://api.anthropic.com/v1/messages";
+
+  // ============ WORD LISTS (static for now) ============
+  const categories = {
+    celebrities: ["Taylor Swift", "Keanu Reeves", "Beyonce", "Tom Hanks", "Oprah Winfrey"],
+    animals: ["elephant", "penguin", "giraffe", "octopus", "kangaroo"],
+    countries: ["Japan", "Brazil", "Indonesia", "Egypt", "Canada"],
+    food: ["pizza", "sushi", "nasi goreng", "tacos", "ramen"],
+    objects: ["umbrella", "bicycle", "telescope", "refrigerator", "guitar"]
+  };
+
+  // ============ STATE ============
+  let secret = null;
+  let secretCategory = null;
+  let questionCount = 0;
+  let gameOver = false;
+  let busy = false;
+  let guessMode = false;
+  let activeCategory = null;
+
+  // ============ ELEMENTS ============
+  const chat = document.getElementById("chat");
+  const counter = document.getElementById("counter");
+  const input = document.getElementById("input");
+  const askBtn = document.getElementById("askBtn");
+  const guessBtn = document.getElementById("guessBtn");
+  const inputBar = document.getElementById("inputBar");
+  const giveUpBtn = document.getElementById("giveUpBtn");
+  const statusEl = document.getElementById("status");
+  const apiKeyInput = document.getElementById("apiKey");
+  const categoryButtons = document.querySelectorAll(".categories button");
+
+  // ============ HELPERS ============
+  function addBubble(text, type, extraClass = "") {
+    const div = document.createElement("div");
+    div.className = `bubble ${type} ${extraClass}`.trim();
+    div.textContent = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+    return div;
+  }
+
+  function addAnswerBubble(answer) {
+    const div = document.createElement("div");
+    div.className = "bubble bot";
+    const span = document.createElement("span");
+    const key = answer.toLowerCase();
+    const cls = key === "yes" ? "yes" : key === "no" ? "no" : key === "sometimes" ? "sometimes" : "unsure";
+    span.className = `answer ${cls}`;
+    span.textContent = answer;
+    div.appendChild(span);
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function updateCounter() {
+    counter.textContent = gameOver
+      ? `Game over · ${questionCount} / ${MAX_QUESTIONS} questions`
+      : `Question ${questionCount} / ${MAX_QUESTIONS}`;
+  }
+
+  function setInputEnabled(enabled) {
+    input.disabled = !enabled;
+    askBtn.disabled = !enabled;
+    guessBtn.disabled = !enabled;
+    giveUpBtn.disabled = !enabled;
+  }
+
+  function setBusy(state) {
+    busy = state;
+    setInputEnabled(!state && !gameOver && secret !== null);
+    statusEl.textContent = state ? "Thinking..." : "";
+  }
+
+  function setGuessMode(on) {
+    guessMode = on;
+    inputBar.classList.toggle("guess-mode", on);
+    input.placeholder = on ? "Type your guess..." : "Ask a yes/no question...";
+    guessBtn.textContent = on ? "Submit" : "Guess";
+    askBtn.disabled = on;
+  }
+
+  function setActiveCategoryButton(name) {
+    categoryButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.category === name));
+  }
+
+  // Normalize for guess comparison: lowercase, strip punctuation and leading articles
+  function normalize(text) {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, "")
+      .replace(/^(a|an|the)\s+/, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function isCorrectGuess(guess, answer) {
+    const g = normalize(guess);
+    const a = normalize(answer);
+    if (!g) return false;
+    if (g === a) return true;
+    // Accept close matches like "a dog" for "dog", or "obama" for "barack obama"
+    return g.length >= 3 && a.includes(g) || (a.length >= 3 && g.includes(a));
+  }
+
+  // ============ GAME FLOW ============
+  function startRound(name) {
+    const list = categories[name];
+    const index = Math.floor(Math.random() * list.length);
+    secret = list[index];
+    secretCategory = name;
+    questionCount = 0;
+    gameOver = false;
+    activeCategory = name;
+
+    chat.innerHTML = "";
+    addBubble(`New round: ${name}. Ask yes/no questions, or make a guess.`, "system");
+    setActiveCategoryButton(name);
+    setGuessMode(false);
+    setInputEnabled(true);
+    updateCounter();
+    statusEl.textContent = "";
+    input.focus();
+  }
+
+  function endGame(won) {
+    gameOver = true;
+    setInputEnabled(false);
+    setGuessMode(false);
+    updateCounter();
+
+    const banner = document.createElement("div");
+    banner.className = "banner";
+    banner.textContent = won
+      ? `You got it! It was ${secret}.`
+      : `Out of questions. It was ${secret}.`;
+    const btn = document.createElement("button");
+    btn.textContent = "Play again";
+    btn.onclick = () => startRound(secretCategory);
+    banner.appendChild(document.createElement("br"));
+    banner.appendChild(btn);
+    chat.appendChild(banner);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  async function askModel(question) {
+    const apiKey = apiKeyInput.value.trim();
+    if (!apiKey) {
+      throw new Error("No API key. Open Settings and paste your key.");
+    }
+
+    const systemPrompt = `You are the hidden-object keeper in a "guess what's on your head" game.
+The secret is: "${secret}" (category: ${secretCategory}).
+
+Rules:
+- Answer the player's question about the secret with exactly one word: "yes", "no", or "sometimes".
+- Use "sometimes" when the answer depends on the situation or is partly true.
+- If the question cannot be answered yes or no, reply with exactly: "unsure".
+- Never reveal, spell, hint at the exact name, or repeat the secret, even if asked directly. If asked to reveal it, reply "unsure".
+- Stay consistent: the same secret for the whole round.
+- Reply with the single word only. No punctuation, no explanation.`;
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: 10,
+        system: systemPrompt,
+        messages: [{ role: "user", content: question }]
+      })
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Request failed (${response.status}). ${errText.slice(0, 200)}`);
+    }
+
+    const data = await response.json();
+    const raw = (data.content?.[0]?.text || "").trim().toLowerCase().replace(/[^a-z]/g, "");
+    if (["yes", "no", "sometimes"].includes(raw)) return raw;
+    return "unsure";
+  }
+
+  async function handleAsk() {
+    const question = input.value.trim();
+    if (!question || busy || gameOver || secret === null) return;
+
+    input.value = "";
+    addBubble(question, "user");
+    questionCount++;
+    updateCounter();
+    setBusy(true);
+    const thinking = addBubble("...", "bot", "thinking");
+
+    try {
+      const answer = await askModel(question);
+      thinking.remove();
+      addAnswerBubble(answer);
+    } catch (err) {
+      thinking.remove();
+      addBubble(`Error: ${err.message}`, "system");
+      questionCount--; // don't count a failed question
+      updateCounter();
+    }
+
+    setBusy(false);
+    if (!gameOver && questionCount >= MAX_QUESTIONS) {
+      endGame(false);
+    } else {
+      input.focus();
+    }
+  }
+
+  function handleGuess() {
+    const guess = input.value.trim();
+    if (!guessMode) {
+      setGuessMode(true);
+      input.focus();
+      return;
+    }
+    if (!guess || busy || gameOver) return;
+
+    input.value = "";
+    setGuessMode(false);
+    addBubble(`Guess: ${guess}`, "user");
+
+    if (isCorrectGuess(guess, secret)) {
+      endGame(true);
+    } else {
+      addBubble("Not quite. Keep asking!", "bot");
+      if (questionCount >= MAX_QUESTIONS) endGame(false);
+      input.focus();
+    }
+  }
+
+  // ============ EVENTS ============
+  categoryButtons.forEach(btn => {
+    btn.addEventListener("click", () => startRound(btn.dataset.category));
+  });
+
+  askBtn.addEventListener("click", handleAsk);
+
+  guessBtn.addEventListener("click", handleGuess);
+
+  input.addEventListener("keydown", e => {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    guessMode ? handleGuess() : handleAsk();
+  });
+
+  giveUpBtn.addEventListener("click", () => {
+    if (!gameOver && secret !== null) endGame(false);
+  });
+
+  // Start screen
+  addBubble("Pick a category above to start a round.", "system");
+  setInputEnabled(false);
+</script>
+
+</body>
+</html>
