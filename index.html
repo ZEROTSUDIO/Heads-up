@@ -425,10 +425,35 @@
   const settingsDrawer = document.getElementById("settingsDrawer");
   const categoryButtons = document.querySelectorAll(".categories button");
 
+  // ============ SAFE STORAGE HELPERS ============
+  function getStorage(key, fallback = "") {
+    try {
+      return localStorage.getItem(key) || fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function setStorage(key, val) {
+    try {
+      localStorage.setItem(key, val);
+    } catch (e) {
+      console.warn("localStorage not available:", e);
+    }
+  }
+
+  function removeStorage(key) {
+    try {
+      localStorage.removeItem(key);
+    } catch (e) {
+      console.warn("localStorage not available:", e);
+    }
+  }
+
   // ============ SETTINGS PERSISTENCE ============
   function loadSettings() {
-    const savedKey = localStorage.getItem(STORAGE_KEY_API) || "";
-    const savedModel = localStorage.getItem(STORAGE_KEY_MODEL) || "gemini-1.5-flash";
+    const savedKey = getStorage(STORAGE_KEY_API, "");
+    const savedModel = getStorage(STORAGE_KEY_MODEL, "gemini-1.5-flash");
     
     if (savedKey) {
       apiKeyInput.value = savedKey;
@@ -447,18 +472,18 @@
   apiKeyInput.addEventListener("input", () => {
     const val = apiKeyInput.value.trim();
     if (val) {
-      localStorage.setItem(STORAGE_KEY_API, val);
+      setStorage(STORAGE_KEY_API, val);
       keyStatus.textContent = "✓ Key saved in localStorage";
       keyStatus.className = "key-status";
     } else {
-      localStorage.removeItem(STORAGE_KEY_API);
+      removeStorage(STORAGE_KEY_API);
       keyStatus.textContent = "No API key set (required to play)";
       keyStatus.className = "key-status empty";
     }
   });
 
   modelSelect.addEventListener("change", () => {
-    localStorage.setItem(STORAGE_KEY_MODEL, modelSelect.value);
+    setStorage(STORAGE_KEY_MODEL, modelSelect.value);
   });
 
   // ============ HELPERS ============
@@ -606,7 +631,7 @@
 
   // ============ GEMINI API INTEGRATION ============
   async function askGemini(question) {
-    const apiKey = apiKeyInput.value.trim() || localStorage.getItem(STORAGE_KEY_API) || "";
+    const apiKey = apiKeyInput.value.trim() || getStorage(STORAGE_KEY_API, "") || "";
     if (!apiKey) {
       settingsDrawer.open = true;
       throw new Error("No Gemini API key found. Please paste your key in Settings below.");
@@ -646,14 +671,14 @@ Rules:
         responseMimeType: "application/json",
         responseSchema: {
           type: "OBJECT",
-          properties": {
+          properties: {
             answer: {
               type: "STRING",
-              enum": ["yes", "no", "sometimes", "unsure"]
+              enum: ["yes", "no", "sometimes", "unsure"]
             },
             confidence: {
               type: "STRING",
-              enum": ["high", "low"]
+              enum: ["high", "low"]
             }
           },
           required: ["answer", "confidence"]
