@@ -1,27 +1,29 @@
 # Guess What's on Your Head: Roadmap
 
-A lightweight browser-based 20-questions game where the player asks yes/no questions about a secret, and an AI powered by Google Gemini answers "yes", "no", "sometimes", or "unsure" until the player guesses it.
+A lightweight browser-based 20-questions game where the player asks yes/no questions about a secret, and an AI (powered by Groq LPU or Google Gemini) answers "yes", "no", "sometimes", or "unsure" until the player guesses it.
 
 ---
 
-## Current State (v0.2 - In Progress)
+## Current State (v0.2 - Multi-Provider Stabilized)
 - Tech stack: Lightweight frontend (Vanilla JS / HTML5 / CSS)
-- AI Engine: Google Gemini API (Gemini 3.8 Flash)
+- AI Engines:
+  - **Groq LPU (Primary / Recommended)**: `openai/gpt-oss-20b` (~200ms latency, high free quota, native JSON) & `openai/gpt-oss-120b`
+  - **Google Gemini (Secondary)**: Gemini 3.8 Flash
 - Structured output: `answer` ("yes", "no", "sometimes", "unsure") + `confidence` ("high", "low")
-- LocalStorage persistence for user API key
-- Guess normalization with fuzzy and plural tolerance
+- LocalStorage persistence for user API keys & provider selection
+- Sane 15s timeout with live timer & guess normalization (plural, typo, article tolerance)
 
 ---
 
-## Phase 1: Gemini Engine & Core Stabilization (v0.2)
-**Goal**: Make the core game loop fast, reliable, and powered by Google Gemini without needing a backend server.
+## Phase 1: AI Engine & Core Stabilization (v0.2)
+**Goal**: Make the core game loop ultra-fast, reliable, and immune to single-provider rate limits without needing a backend server.
 
-- [x] Migrate AI caller from Anthropic to Google Gemini (`gemini-3.8-flash`)
-- [x] Use Gemini structured output (`response_mime_type: "application/json"`) to strictly enforce valid responses and prevent secret leakage
-- [x] Persist API key in `localStorage` so players don't have to re-paste on page reload
+- [x] Migrate AI caller from single provider to Multi-Provider Architecture (Groq + Google Gemini)
+- [x] Enforce strict JSON output schemas (`answer: yes|no|sometimes|unsure`, `confidence: high|low`) to prevent secret leakage
+- [x] Persist provider selection and individual API keys independently in `localStorage`
+- [x] Added "Test Key" diagnostic tool to verify API keys instantly in-browser
+- [x] Sane 15s timeout with real-time second-by-second countdown in UI
 - [x] Improve guess matching for edge cases (articles, plurals, minor typos/fuzzy matching)
-- [x] Clear error handling for missing keys, quota limits, and network drops
-- [x] Add answer confidence signal (`high` vs `low`) to prepare for expressive character states
 
 ---
 
