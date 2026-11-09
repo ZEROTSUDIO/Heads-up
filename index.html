@@ -1,1272 +1,267 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Guess What's on Your Head (AI 20 Questions)</title>
-<style>
-  :root {
-    --bg: #f5f3ef;
-    --card: #ffffff;
-    --text: #1a191e;
-    --muted: #6b6973;
-    --accent: #5b5bd6;
-    --accent-hover: #4b4bc0;
-    --yes: #16a34a;
-    --no: #dc2626;
-    --sometimes: #d97706;
-    --unsure: #7c3aed;
-    --border: #e2dfd8;
-    --shadow-color: rgba(10, 9, 13, 0.08);
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  header {
-    padding: 14px 16px 8px;
-    text-align: center;
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-  }
-  header h1 {
-    font-size: 1.25rem;
-    margin: 0;
-    letter-spacing: -0.02em;
-  }
-  #counter {
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin-top: 4px;
-    font-weight: 500;
-  }
-
-  .categories {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding: 10px 16px;
-    scrollbar-width: none;
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-  }
-  .categories::-webkit-scrollbar { display: none; }
-  .categories button {
-    flex: 0 0 auto;
-    border: 1px solid var(--border);
-    background: var(--bg);
-    color: var(--text);
-    padding: 8px 14px;
-    border-radius: 999px;
-    cursor: pointer;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: all 0.15s ease;
-  }
-  .categories button:hover:not(:disabled) {
-    background: #ebe7df;
-  }
-  .categories button.active {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent);
-  }
-  .categories button:disabled {
-    opacity: 0.5;
-    cursor: default;
-  }
-
-  #chat {
-    flex: 1;
-    overflow-y: auto;
-    padding: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  .bubble {
-    max-width: 82%;
-    padding: 10px 14px;
-    border-radius: 16px;
-    line-height: 1.45;
-    word-wrap: break-word;
-    font-size: 0.95rem;
-  }
-  .bubble.user {
-    align-self: flex-end;
-    background: var(--accent);
-    color: #fff;
-    border-bottom-right-radius: 4px;
-  }
-  .bubble.bot {
-    align-self: flex-start;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-bottom-left-radius: 4px;
-    box-shadow: 0 2px 4px var(--shadow-color);
-  }
-  .bubble.system {
-    align-self: center;
-    color: var(--muted);
-    font-size: 0.875rem;
-    text-align: center;
-    background: rgba(0, 0, 0, 0.04);
-    padding: 6px 12px;
-    border-radius: 8px;
-  }
-
-  .answer-wrap {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .answer {
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 1rem;
-    letter-spacing: 0.03em;
-  }
-  .answer.yes { color: var(--yes); }
-  .answer.no { color: var(--no); }
-  .answer.sometimes { color: var(--sometimes); }
-  .answer.unsure { color: var(--unsure); }
-
-  .conf-badge {
-    font-size: 0.725rem;
-    padding: 2px 7px;
-    border-radius: 999px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    background: #f1f0ee;
-    color: var(--muted);
-    border: 1px solid var(--border);
-  }
-  .conf-badge.low {
-    background: #fef3c7;
-    color: #92400e;
-    border-color: #fde68a;
-  }
-
-  .thinking {
-    color: var(--muted);
-    font-style: italic;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .thinking-dots {
-    display: inline-block;
-    animation: pulse 1.4s infinite ease-in-out both;
-  }
-  @keyframes pulse {
-    0%, 80%, 100% { opacity: 0.2; }
-    40% { opacity: 1; }
-  }
-
-  .banner {
-    align-self: stretch;
-    text-align: center;
-    padding: 16px;
-    border-radius: 12px;
-    background: var(--card);
-    border: 2px solid var(--accent);
-    box-shadow: 0 4px 12px rgba(91, 91, 214, 0.15);
-  }
-  .banner .result-title {
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-  .banner .result-desc {
-    color: var(--muted);
-    font-size: 0.9rem;
-    margin-bottom: 12px;
-  }
-  .banner button {
-    padding: 8px 20px;
-    border: none;
-    border-radius: 8px;
-    background: var(--accent);
-    color: #fff;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-
-  .input-bar {
-    display: flex;
-    gap: 8px;
-    padding: 10px 16px;
-    background: var(--card);
-    border-top: 1px solid var(--border);
-    position: sticky;
-    bottom: 0;
-  }
-  .input-bar input {
-    flex: 1;
-    padding: 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-size: 0.95rem;
-    min-width: 0;
-    outline: none;
-    transition: border-color 0.15s ease;
-  }
-  .input-bar input:focus {
-    border-color: var(--accent);
-  }
-  .input-bar button {
-    padding: 10px 16px;
-    border: none;
-    border-radius: 10px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s ease;
-  }
-  .input-bar button:hover:not(:disabled) {
-    background: var(--accent-hover);
-  }
-  .input-bar button.guess {
-    background: #1a191e;
-  }
-  .input-bar button.guess:hover:not(:disabled) {
-    background: #333;
-  }
-  .input-bar button:disabled {
-    opacity: 0.5;
-    cursor: default;
-  }
-  .input-bar.guess-mode input {
-    border-color: #1a191e;
-    background: #faf8f5;
-  }
-
-  footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 16px 8px;
-    font-size: 0.85rem;
-    color: var(--muted);
-    background: var(--card);
-    border-top: 1px solid #f0eee8;
-  }
-  footer button, details summary {
-    background: none;
-    border: none;
-    color: var(--accent);
-    cursor: pointer;
-    font-size: 0.85rem;
-    padding: 0;
-    font-weight: 500;
-  }
-  footer button:hover {
-    text-decoration: underline;
-  }
-
-  details {
-    padding: 8px 16px 14px;
-    background: var(--card);
-    font-size: 0.85rem;
-    border-top: 1px solid var(--border);
-  }
-  details summary {
-    cursor: pointer;
-    user-select: none;
-    outline: none;
-  }
-  .settings-body {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .settings-row {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .settings-row label {
-    font-weight: 600;
-    color: var(--text);
-    font-size: 0.8rem;
-  }
-  .settings-row input, .settings-row select {
-    padding: 8px 10px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 0.85rem;
-  }
-  .settings-row input {
-    font-family: monospace;
-  }
-  .settings-help {
-    color: var(--muted);
-    font-size: 0.775rem;
-    margin: 2px 0 0;
-    line-height: 1.4;
-  }
-  .settings-help a {
-    color: var(--accent);
-    text-decoration: none;
-  }
-  .settings-help a:hover {
-    text-decoration: underline;
-  }
-  .key-status {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--yes);
-    margin-top: 2px;
-  }
-  .key-status.empty {
-    color: var(--sometimes);
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HEADS-UP // NEUTRAL ORACLE (20 QUESTIONS)</title>
+  
+  <!-- Zerotsudios UI Core Design System -->
+  <link rel="stylesheet" href="css/zerotsudios.css">
+  
+  <!-- Heads-Up Game Custom Styling -->
+  <link rel="stylesheet" href="css/game.css">
+  
+  <link rel="icon" type="image/svg+xml" href="assets/zero-studios-icon.svg">
 </head>
 <body>
 
-<header>
-  <h1>Guess What's on Your Head</h1>
-  <div id="counter">Pick a category to start</div>
-</header>
+  <!-- Print Registration Marks (Architectural Aesthetic) -->
+  <div class="print-mark top-left" style="top: 14px; left: 16px;">
+    <div class="crosshair"></div>
+  </div>
+  <div class="print-mark top-right" style="top: 14px; right: 16px;">
+    <div class="crosshair"></div>
+  </div>
 
-<div class="categories" id="categories">
-  <button data-category="celebrities">Celebrities</button>
-  <button data-category="animals">Animals</button>
-  <button data-category="countries">Countries</button>
-  <button data-category="food">Food</button>
-  <button data-category="objects">Objects</button>
-</div>
+  <div class="app-viewport">
 
-<div id="chat"></div>
-
-<div class="input-bar" id="inputBar">
-  <input id="input" type="text" placeholder="Ask a yes/no question..." disabled autocomplete="off">
-  <button id="askBtn" disabled>Ask</button>
-  <button id="guessBtn" class="guess" disabled>Guess</button>
-</div>
-
-<footer>
-  <span id="status"></span>
-  <button id="giveUpBtn" disabled>Give up / show secret</button>
-</footer>
-
-<details id="settingsDrawer">
-  <summary>Settings &amp; AI Provider Configuration</summary>
-  <div class="settings-body">
-    <div class="settings-row">
-      <label for="providerSelect">AI Provider</label>
-      <select id="providerSelect">
-        <option value="groq" selected>⚡ Groq (Ultra-Fast LPU &amp; Generous Free Tier - Recommended)</option>
-        <option value="gemini">Google Gemini</option>
-      </select>
-    </div>
-
-    <!-- Groq Settings -->
-    <div id="groqSettingsBlock">
-      <div class="settings-row">
-        <label for="groqApiKey">Groq API Key</label>
-        <input id="groqApiKey" type="password" placeholder="gsk_...">
-        <div id="groqKeyStatus" class="key-status empty">No Groq key set</div>
-        <p class="settings-help">
-          Stored in browser <code>localStorage</code> only.
-          Get a free key in 30s at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq Console</a> (14,400 free requests/day!).
-        </p>
+    <!-- ══════════ TOP HEADER & TELEMETRY BAR ══════════ -->
+    <header class="game-header">
+      <div class="brand-block">
+        <div class="title-bar-stacked">
+          <span class="title-bar-tag">PARTY PROTOCOL // 20Q</span>
+          <span class="title-bar-main">HEADS-UP // ORACLE</span>
+        </div>
       </div>
-      <div class="settings-row">
-        <label for="groqModelSelect">Groq Model</label>
-        <select id="groqModelSelect">
-          <option value="openai/gpt-oss-20b" selected>openai/gpt-oss-20b (Ultra-Fast ~200ms &amp; Free Tier Recommended)</option>
-          <option value="openai/gpt-oss-120b">openai/gpt-oss-120b (High Reasoning 120B)</option>
-          <option value="qwen/qwen3.8-27b">qwen/qwen3.8-27b (Alibaba Cloud 27B)</option>
-        </select>
-      </div>
-    </div>
 
-    <!-- Gemini Settings -->
-    <div id="geminiSettingsBlock" style="display: none;">
-      <div class="settings-row">
-        <label for="geminiApiKey">Google Gemini API Key</label>
-        <input id="geminiApiKey" type="password" placeholder="AIzaSy...">
-        <div id="geminiKeyStatus" class="key-status empty">No Gemini key set</div>
-        <p class="settings-help">
-          Stored in browser <code>localStorage</code> only.
-          Get an API key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>.
-        </p>
-      </div>
-      <div class="settings-row">
-        <label for="geminiModelSelect">Gemini Model</label>
-        <select id="geminiModelSelect">
-          <option value="gemini-3.8-flash" selected>Gemini 3.8 Flash</option>
-        </select>
-      </div>
-    </div>
+      <div class="header-telemetry-row">
+        <div class="status-pill">
+          <span class="status-dot"></span>
+          <span id="headerActiveCategory">STANDBY</span>
+        </div>
 
-    <div class="settings-row">
-      <div style="display: flex; gap: 8px; align-items: center; margin-top: 4px;">
-        <button id="testKeyBtn" type="button" style="padding: 6px 12px; border-radius: 6px; background: var(--bg); border: 1px solid var(--border); cursor: pointer; font-size: 0.775rem; font-weight: 500;">🔍 Test Active Provider Key</button>
-        <span id="testKeyResult" style="font-size: 0.75rem; color: var(--muted);"></span>
+        <button id="settingsBtn" class="header-btn" type="button" title="Configure AI Provider & Settings">
+          <span>⚙ SETTINGS</span>
+        </button>
       </div>
-    </div>
+    </header>
 
-    <div class="settings-row">
-      <label for="timeoutSelect">Request Timeout</label>
-      <select id="timeoutSelect">
-        <option value="15" selected>15 seconds (Recommended for Groq)</option>
-        <option value="30">30 seconds</option>
-        <option value="45">45 seconds (For slower networks)</option>
-      </select>
+    <!-- ══════════ MAIN PLAY GRID ══════════ -->
+    <main class="game-grid">
+
+      <!-- LEFT COLUMN: THE ORACLE BOOTH -->
+      <section class="oracle-booth">
+        <div class="avatar-card framed-poster" style="--r: -0.8deg;">
+          <!-- Slanted Washi Tape Badges -->
+          <div class="badge-tape badge-tape-tr tag-purple" style="--r: 2.5deg;">ORACLE-ZERO</div>
+          <div class="badge-tape badge-tape-bl tag-orange" style="--r: -2.5deg;">SECRET KEEPER</div>
+
+          <div class="title-bar">
+            <span>NEURAL AVATAR // LIVE</span>
+            <span style="color: var(--purple-light);">v0.3</span>
+          </div>
+
+          <!-- Expressive Mascot Stage (Injected by OracleAvatar) -->
+          <div class="avatar-card-inner">
+            <div id="oracleAvatarContainer"></div>
+          </div>
+        </div>
+
+        <!-- Simulated Forehead Card -->
+        <div class="forehead-card">
+          <div class="forehead-card-header">
+            <span>FOREHEAD MOUNTED CARD</span>
+            <span id="secretCategoryLabel">CATEGORY: NONE</span>
+          </div>
+          <div id="activeSecretBadge" class="forehead-badge">
+            ?? [SELECT CATEGORY] ??
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: INTERROGATION CONSOLE -->
+      <section class="console-panel">
+        <div class="title-bar">
+          <span>INTERROGATION TERMINAL</span>
+          <span id="counterText">QUESTION 0 / 20</span>
+        </div>
+
+        <!-- 20 Question Slot Progress Tracker -->
+        <div class="progress-tracker-wrap">
+          <div class="tracker-meta">
+            <span>REMAINING INQUIRIES</span>
+            <span style="color: var(--purple);">MAX: 20</span>
+          </div>
+          <div id="trackerSlots" class="tracker-slots-row">
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+            <div class="tracker-slot"></div>
+          </div>
+        </div>
+
+        <!-- Category Selector Strip -->
+        <div class="category-strip">
+          <span class="category-label">SELECT DECK:</span>
+          <button class="category-chip-btn" data-category="animals" type="button">
+            <span class="chip-dot teal"></span>ANIMALS
+          </button>
+          <button class="category-chip-btn" data-category="objects" type="button">
+            <span class="chip-dot purple"></span>OBJECTS
+          </button>
+          <button class="category-chip-btn" data-category="celebrities" type="button">
+            <span class="chip-dot orange"></span>CELEBRITIES
+          </button>
+          <button class="category-chip-btn" data-category="food" type="button">
+            <span class="chip-dot blood"></span>FOOD
+          </button>
+          <button class="category-chip-btn" data-category="countries" type="button">
+            <span class="chip-dot dark"></span>COUNTRIES
+          </button>
+        </div>
+
+        <!-- Dialogue Feed Log -->
+        <div id="chatFeed" class="chat-feed"></div>
+
+        <!-- Command Deck & Input Bar -->
+        <div id="commandDeck" class="command-deck">
+          <div class="command-inputs-row">
+            <input 
+              id="gameInput" 
+              type="text" 
+              class="input-game-deck" 
+              placeholder="Ask a yes/no question (e.g. Am I an actor? Can I fly?)..." 
+              autocomplete="off" 
+              disabled
+            >
+            <button id="askBtn" class="command-btn btn-ask" type="button" disabled>
+              <span>ASK AI</span> ↵
+            </button>
+            <button id="guessBtn" class="command-btn btn-guess" type="button" disabled>
+              <span>GUESS</span>
+            </button>
+          </div>
+
+          <div class="deck-secondary-row">
+            <span>RULE: Ask yes/no questions from any perspective ("Am I...", "Is he/it...").</span>
+            <button id="giveUpBtn" class="command-btn btn-giveup" type="button" disabled>
+              GIVE UP / REVEAL
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ══════════ SETTINGS MODAL (OBSIDIAN PLATE) ══════════ -->
+  <div id="settingsModal" class="settings-modal-backdrop">
+    <div class="settings-modal-card panel-dark">
+      <div class="title-bar-dark">
+        <span>AI ENGINE CONFIGURATION</span>
+        <button id="closeSettingsBtn" type="button" style="background: transparent; border: none; color: #FFFFFF; font-size: 16px; cursor: pointer; font-family: monospace;">✕</button>
+      </div>
+
+      <div class="settings-modal-inner">
+        <!-- Provider Selection -->
+        <div class="settings-group">
+          <label class="settings-label" for="providerSelect">Primary AI Provider</label>
+          <select id="providerSelect" class="settings-select">
+            <option value="groq" selected>⚡ Groq LPU (Ultra-Fast ~200ms & High Free Quota - Recommended)</option>
+            <option value="gemini">Google Gemini (Gemini 3.8 Flash)</option>
+          </select>
+        </div>
+
+        <!-- Groq Configuration Block -->
+        <div id="groqSettingsBlock" class="settings-group">
+          <label class="settings-label" for="groqApiKey">Groq API Key</label>
+          <input id="groqApiKey" type="password" class="settings-input" placeholder="gsk_...">
+          <div id="groqKeyStatus" class="key-status-indicator empty">No Groq key set</div>
+          <p class="settings-help">
+            Keys are strictly saved in browser <code>localStorage</code>.
+            Get a 100% free key in 30s at <a href="https://console.groq.com/keys" target="_blank" rel="noopener">Groq Console</a> (14,400 free requests/day!).
+          </p>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+            <label class="settings-label" for="groqModelSelect">Groq Model</label>
+            <button id="refreshGroqModelsBtn" type="button" class="header-btn" style="padding: 3px 8px; font-size: 9px;">Refresh Models</button>
+          </div>
+          <select id="groqModelSelect" class="settings-select">
+            <option value="openai/gpt-oss-20b" selected>openai/gpt-oss-20b (Ultra-Fast & Recommended)</option>
+            <option value="openai/gpt-oss-120b">openai/gpt-oss-120b (High Reasoning)</option>
+            <option value="qwen/qwen3.8-27b">qwen/qwen3.8-27b</option>
+          </select>
+        </div>
+
+        <!-- Gemini Configuration Block -->
+        <div id="geminiSettingsBlock" class="settings-group" style="display: none;">
+          <label class="settings-label" for="geminiApiKey">Google Gemini API Key</label>
+          <input id="geminiApiKey" type="password" class="settings-input" placeholder="AIzaSy...">
+          <div id="geminiKeyStatus" class="key-status-indicator empty">No Gemini key set</div>
+          <p class="settings-help">
+            Get your Gemini key at <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a>.
+          </p>
+
+          <label class="settings-label" for="geminiModelSelect" style="margin-top: 6px;">Gemini Model</label>
+          <select id="geminiModelSelect" class="settings-select">
+            <option value="gemini-3.8-flash" selected>Gemini 3.8 Flash</option>
+          </select>
+        </div>
+
+        <!-- Diagnostic Key Verification -->
+        <div class="settings-group">
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button id="testKeyBtn" type="button" class="header-btn" style="background: var(--purple); color: #fff;">
+              🔍 TEST ACTIVE PROVIDER KEY
+            </button>
+            <span id="testKeyResult" style="font-family: 'Space Mono', monospace; font-size: 11px;"></span>
+          </div>
+        </div>
+
+        <!-- Timeout Setting -->
+        <div class="settings-group">
+          <label class="settings-label" for="timeoutSelect">Request Timeout</label>
+          <select id="timeoutSelect" class="settings-select">
+            <option value="15" selected>15 seconds (Recommended for Groq)</option>
+            <option value="30">30 seconds</option>
+            <option value="45">45 seconds (For slower networks)</option>
+          </select>
+        </div>
+
+        <!-- Retro Audio Synthesis Toggle -->
+        <div class="settings-group" style="flex-direction: row; justify-content: space-between; align-items: center; border-top: 1px solid #38225C; padding-top: 12px;">
+          <div>
+            <div class="settings-label">8-BIT SYNTHESIZER SFX</div>
+            <div class="settings-help">Web Audio API mechanical clicks, chimes, and fanfares</div>
+          </div>
+          <input id="sfxToggle" type="checkbox" checked style="width: 18px; height: 18px; accent-color: var(--purple-light); cursor: pointer;">
+        </div>
+
+      </div>
     </div>
   </div>
-</details>
 
-<script>
-  // ============ CONFIG & STORAGE ============
-  const MAX_QUESTIONS = 20;
-  const STORAGE_KEY_PROVIDER = "headsup_provider";
-  const STORAGE_KEY_GROQ_KEY = "headsup_groq_api_key";
-  const STORAGE_KEY_GROQ_MODEL = "headsup_groq_model";
-  const STORAGE_KEY_GEMINI_KEY = "headsup_gemini_api_key";
-  const STORAGE_KEY_GEMINI_MODEL = "headsup_gemini_model";
-  const STORAGE_KEY_TIMEOUT = "headsup_timeout";
-
-  // ============ WORD LISTS ============
-  const categories = {
-    celebrities: ["Taylor Swift", "Keanu Reeves", "Beyoncé", "Tom Hanks", "Oprah Winfrey", "Cristiano Ronaldo", "Albert Einstein"],
-    animals: ["elephant", "penguin", "giraffe", "octopus", "kangaroo", "dolphin", "chameleon"],
-    countries: ["Japan", "Brazil", "Indonesia", "Egypt", "Canada", "Iceland", "Australia"],
-    food: ["pizza", "sushi", "nasi goreng", "tacos", "ramen", "croissant", "guacamole"],
-    objects: ["umbrella", "bicycle", "telescope", "refrigerator", "guitar", "compass", "sunglasses"]
-  };
-
-  // ============ STATE ============
-  let secret = null;
-  let secretCategory = null;
-  let questionCount = 0;
-  let gameOver = false;
-  let busy = false;
-  let guessMode = false;
-  let activeCategory = null;
-
-  // ============ ELEMENTS ============
-  const chat = document.getElementById("chat");
-  const counter = document.getElementById("counter");
-  const input = document.getElementById("input");
-  const askBtn = document.getElementById("askBtn");
-  const guessBtn = document.getElementById("guessBtn");
-  const inputBar = document.getElementById("inputBar");
-  const giveUpBtn = document.getElementById("giveUpBtn");
-  const statusEl = document.getElementById("status");
-  const providerSelect = document.getElementById("providerSelect");
-  const groqSettingsBlock = document.getElementById("groqSettingsBlock");
-  const geminiSettingsBlock = document.getElementById("geminiSettingsBlock");
-  const groqApiKeyInput = document.getElementById("groqApiKey");
-  const groqKeyStatus = document.getElementById("groqKeyStatus");
-  const groqModelSelect = document.getElementById("groqModelSelect");
-  const geminiApiKeyInput = document.getElementById("geminiApiKey");
-  const geminiKeyStatus = document.getElementById("geminiKeyStatus");
-  const geminiModelSelect = document.getElementById("geminiModelSelect");
-  const timeoutSelect = document.getElementById("timeoutSelect");
-  const testKeyBtn = document.getElementById("testKeyBtn");
-  const testKeyResult = document.getElementById("testKeyResult");
-  const settingsDrawer = document.getElementById("settingsDrawer");
-  const categoryButtons = document.querySelectorAll(".categories button");
-
-  // ============ SAFE STORAGE HELPERS ============
-  function getStorage(key, fallback = "") {
-    try {
-      return localStorage.getItem(key) || fallback;
-    } catch (e) {
-      return fallback;
-    }
-  }
-
-  function setStorage(key, val) {
-    try {
-      localStorage.setItem(key, val);
-    } catch (e) {
-      console.warn("localStorage not available:", e);
-    }
-  }
-
-  function removeStorage(key) {
-    try {
-      localStorage.removeItem(key);
-    } catch (e) {
-      console.warn("localStorage not available:", e);
-    }
-  }
-
-  // ============ SETTINGS PERSISTENCE & UI ============
-  function updateProviderUI() {
-    const provider = providerSelect.value;
-    groqSettingsBlock.style.display = provider === "groq" ? "block" : "none";
-    geminiSettingsBlock.style.display = provider === "gemini" ? "block" : "none";
-  }
-
-  function loadSettings() {
-    const savedProvider = getStorage(STORAGE_KEY_PROVIDER, "groq");
-    providerSelect.value = savedProvider;
-    updateProviderUI();
-
-    // Groq settings
-    const savedGroqKey = getStorage(STORAGE_KEY_GROQ_KEY, "");
-    let savedGroqModel = getStorage(STORAGE_KEY_GROQ_MODEL, "openai/gpt-oss-20b");
-    if (savedGroqModel.includes("llama") || !savedGroqModel) {
-      savedGroqModel = "openai/gpt-oss-20b";
-      setStorage(STORAGE_KEY_GROQ_MODEL, savedGroqModel);
-    }
-    if (savedGroqKey) {
-      groqApiKeyInput.value = savedGroqKey;
-      groqKeyStatus.textContent = "✓ Key saved in localStorage";
-      groqKeyStatus.className = "key-status";
-      fetchGroqModels(savedGroqKey);
-    } else {
-      groqKeyStatus.textContent = "No Groq key set (free at console.groq.com/keys)";
-      groqKeyStatus.className = "key-status empty";
-    }
-    groqModelSelect.value = savedGroqModel;
-
-    // Gemini settings
-    const savedGeminiKey = getStorage(STORAGE_KEY_GEMINI_KEY, "");
-    const savedGeminiModel = getStorage(STORAGE_KEY_GEMINI_MODEL, "gemini-3.8-flash");
-    if (savedGeminiKey) {
-      geminiApiKeyInput.value = savedGeminiKey;
-      geminiKeyStatus.textContent = "✓ Key saved in localStorage";
-      geminiKeyStatus.className = "key-status";
-    } else {
-      geminiKeyStatus.textContent = "No Gemini key set";
-      geminiKeyStatus.className = "key-status empty";
-    }
-    geminiModelSelect.value = savedGeminiModel;
-
-    // Timeout
-    const savedTimeout = getStorage(STORAGE_KEY_TIMEOUT, "15");
-    if (timeoutSelect) {
-      timeoutSelect.value = savedTimeout;
-    }
-  }
-
-  // ============ DYNAMIC MODEL AUTO-DISCOVERY ============
-  async function fetchGroqModels(apiKey) {
-    if (!apiKey) return;
-    try {
-      const res = await fetch("https://api.groq.com/openai/v1/models", {
-        headers: { "Authorization": `Bearer ${apiKey}` }
-      });
-      if (!res.ok) return;
-      const data = await res.json();
-      const chatModels = (data.data || [])
-        .map(m => m.id)
-        .filter(id => !id.includes("whisper") && !id.includes("safeguard") && !id.includes("distil"));
-      
-      if (chatModels.length > 0) {
-        const currentSelected = groqModelSelect.value || getStorage(STORAGE_KEY_GROQ_MODEL, "openai/gpt-oss-20b");
-        groqModelSelect.innerHTML = "";
-        chatModels.forEach(m => {
-          const opt = document.createElement("option");
-          opt.value = m;
-          const label = m === "openai/gpt-oss-20b" ? `${m} (Recommended - Ultra Fast)` : m;
-          opt.textContent = label;
-          groqModelSelect.appendChild(opt);
-        });
-        if (chatModels.includes(currentSelected)) {
-          groqModelSelect.value = currentSelected;
-        } else if (chatModels.includes("openai/gpt-oss-20b")) {
-          groqModelSelect.value = "openai/gpt-oss-20b";
-        } else {
-          groqModelSelect.value = chatModels[0];
-        }
-        setStorage(STORAGE_KEY_GROQ_MODEL, groqModelSelect.value);
-        console.log("Auto-discovered Groq models:", chatModels);
-      }
-    } catch (e) {
-      console.warn("Could not auto-fetch Groq models:", e);
-    }
-  }
-
-  providerSelect.addEventListener("change", () => {
-    setStorage(STORAGE_KEY_PROVIDER, providerSelect.value);
-    updateProviderUI();
-  });
-
-  groqApiKeyInput.addEventListener("input", () => {
-    const val = groqApiKeyInput.value.trim();
-    if (val) {
-      setStorage(STORAGE_KEY_GROQ_KEY, val);
-      groqKeyStatus.textContent = "✓ Key saved in localStorage";
-      groqKeyStatus.className = "key-status";
-      fetchGroqModels(val);
-    } else {
-      removeStorage(STORAGE_KEY_GROQ_KEY);
-      groqKeyStatus.textContent = "No Groq key set (free at console.groq.com/keys)";
-      groqKeyStatus.className = "key-status empty";
-    }
-  });
-
-  groqModelSelect.addEventListener("change", () => {
-    setStorage(STORAGE_KEY_GROQ_MODEL, groqModelSelect.value);
-  });
-
-  geminiApiKeyInput.addEventListener("input", () => {
-    const val = geminiApiKeyInput.value.trim();
-    if (val) {
-      setStorage(STORAGE_KEY_GEMINI_KEY, val);
-      geminiKeyStatus.textContent = "✓ Key saved in localStorage";
-      geminiKeyStatus.className = "key-status";
-    } else {
-      removeStorage(STORAGE_KEY_GEMINI_KEY);
-      geminiKeyStatus.textContent = "No Gemini key set";
-      geminiKeyStatus.className = "key-status empty";
-    }
-  });
-
-  geminiModelSelect.addEventListener("change", () => {
-    setStorage(STORAGE_KEY_GEMINI_MODEL, geminiModelSelect.value);
-  });
-
-  if (timeoutSelect) {
-    timeoutSelect.addEventListener("change", () => {
-      setStorage(STORAGE_KEY_TIMEOUT, timeoutSelect.value);
-    });
-  }
-
-  if (testKeyBtn) {
-    testKeyBtn.addEventListener("click", async () => {
-      const provider = providerSelect.value;
-      if (provider === "groq") {
-        const apiKey = groqApiKeyInput.value.trim() || getStorage(STORAGE_KEY_GROQ_KEY, "");
-        if (!apiKey) {
-          testKeyResult.textContent = "Please enter your Groq API key (starts with gsk_).";
-          testKeyResult.style.color = "var(--no)";
-          return;
-        }
-        testKeyResult.textContent = "Checking Groq models...";
-        testKeyResult.style.color = "var(--muted)";
-        try {
-          const res = await fetch("https://api.groq.com/openai/v1/models", {
-            headers: { "Authorization": `Bearer ${apiKey}` }
-          });
-          if (!res.ok) {
-            const t = await res.text();
-            throw new Error(`HTTP ${res.status}: ${t.slice(0, 80)}`);
-          }
-          const data = await res.json();
-          const chatModels = (data.data || [])
-            .map(m => m.id)
-            .filter(id => !id.includes("whisper") && !id.includes("safeguard") && !id.includes("distil"));
-          await fetchGroqModels(apiKey);
-          testKeyResult.textContent = `✓ Key Valid! Available: ${chatModels.slice(0, 3).join(", ")}`;
-          testKeyResult.style.color = "var(--yes)";
-        } catch (err) {
-          testKeyResult.textContent = `✗ ${err.message}`;
-          testKeyResult.style.color = "var(--no)";
-        }
-      } else {
-        const apiKey = geminiApiKeyInput.value.trim() || getStorage(STORAGE_KEY_GEMINI_KEY, "");
-        if (!apiKey) {
-          testKeyResult.textContent = "Please enter your Gemini API key.";
-          testKeyResult.style.color = "var(--no)";
-          return;
-        }
-        testKeyResult.textContent = "Testing Gemini connection...";
-        testKeyResult.style.color = "var(--muted)";
-        try {
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${encodeURIComponent(apiKey)}`);
-          if (!res.ok) {
-            const t = await res.text();
-            throw new Error(`HTTP ${res.status}: ${t.slice(0, 80)}`);
-          }
-          testKeyResult.textContent = `✓ Gemini Key Valid!`;
-          testKeyResult.style.color = "var(--yes)";
-        } catch (err) {
-          testKeyResult.textContent = `✗ ${err.message}`;
-          testKeyResult.style.color = "var(--no)";
-        }
-      }
-    });
-  }
-
-  // ============ HELPERS ============
-  function addBubble(text, type, extraClass = "") {
-    const div = document.createElement("div");
-    div.className = `bubble ${type} ${extraClass}`.trim();
-    div.textContent = text;
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-    return div;
-  }
-
-  function addAnswerBubble(answer, confidence = "high") {
-    const div = document.createElement("div");
-    div.className = "bubble bot";
-
-    const wrap = document.createElement("div");
-    wrap.className = "answer-wrap";
-
-    const span = document.createElement("span");
-    const key = (answer || "unsure").toLowerCase();
-    const cls = ["yes", "no", "sometimes", "unsure"].includes(key) ? key : "unsure";
-    span.className = `answer ${cls}`;
-    span.textContent = key.toUpperCase();
-    wrap.appendChild(span);
-
-    // If confidence is low, add a subtle indicator badge
-    if (confidence === "low") {
-      const badge = document.createElement("span");
-      badge.className = "conf-badge low";
-      badge.textContent = "Hesitant";
-      badge.title = "The AI considers this answer borderline or context-dependent";
-      wrap.appendChild(badge);
-    }
-
-    div.appendChild(wrap);
-    chat.appendChild(div);
-    chat.scrollTop = chat.scrollHeight;
-  }
-
-  function updateCounter() {
-    counter.textContent = gameOver
-      ? `Game over · ${questionCount} / ${MAX_QUESTIONS} questions`
-      : `Question ${questionCount} / ${MAX_QUESTIONS}`;
-  }
-
-  function setInputEnabled(enabled) {
-    input.disabled = !enabled;
-    askBtn.disabled = !enabled;
-    guessBtn.disabled = !enabled;
-    giveUpBtn.disabled = !enabled;
-  }
-
-  function setBusy(state) {
-    busy = state;
-    setInputEnabled(!state && !gameOver && secret !== null);
-    statusEl.textContent = state ? "Evaluating question..." : "";
-  }
-
-  function setGuessMode(on) {
-    guessMode = on;
-    inputBar.classList.toggle("guess-mode", on);
-    input.placeholder = on ? "Type your guess (e.g. Taylor Swift)..." : "Ask a yes/no question...";
-    guessBtn.textContent = on ? "Submit" : "Guess";
-    askBtn.disabled = on;
-  }
-
-  function setActiveCategoryButton(name) {
-    categoryButtons.forEach(btn => btn.classList.toggle("active", btn.dataset.category === name));
-  }
-
-  // ============ NORMALIZATION & GUESS MATCHING ============
-  function cleanString(text) {
-    return (text || "")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // strip diacritics / accents (e.g. Beyoncé -> Beyonce)
-      .toLowerCase()
-      .replace(/[^a-z0-9\s]/g, "") // strip punctuation
-      .replace(/^(a|an|the)\s+/, "") // strip leading articles
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
-  function singularize(word) {
-    if (word.endsWith("ies") && word.length > 4) return word.slice(0, -3) + "y";
-    if (word.endsWith("es") && (word.endsWith("shes") || word.endsWith("ches") || word.endsWith("xes") || word.endsWith("sses"))) {
-      return word.slice(0, -2);
-    }
-    if (word.endsWith("s") && !word.endsWith("ss") && word.length > 3) {
-      return word.slice(0, -1);
-    }
-    return word;
-  }
-
-  function levenshtein(a, b) {
-    const matrix = [];
-    for (let i = 0; i <= b.length; i++) matrix[i] = [i];
-    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
-    for (let i = 1; i <= b.length; i++) {
-      for (let j = 1; j <= a.length; j++) {
-        if (b.charAt(i - 1) === a.charAt(j - 1)) {
-          matrix[i][j] = matrix[i - 1][j - 1];
-        } else {
-          matrix[i][j] = Math.min(
-            matrix[i - 1][j - 1] + 1, // substitution
-            matrix[i][j - 1] + 1,     // insertion
-            matrix[i - 1][j] + 1      // deletion
-          );
-        }
-      }
-    }
-    return matrix[b.length][a.length];
-  }
-
-  function isCorrectGuess(guess, target) {
-    const g = cleanString(guess);
-    const a = cleanString(target);
-    if (!g || !a) return false;
-
-    // 1. Exact cleaned match
-    if (g === a) return true;
-
-    // 2. Singular/plural match (e.g. "dogs" vs "dog", "pizzas" vs "pizza")
-    if (singularize(g) === singularize(a)) return true;
-
-    // 3. Multi-word individual name match (e.g. "Taylor" or "Swift" for "Taylor Swift")
-    const aWords = a.split(" ").filter(w => w.length >= 3);
-    const gWords = g.split(" ").filter(w => w.length >= 3);
-    if (aWords.length > 1 && gWords.length === 1) {
-      if (aWords.includes(gWords[0])) return true;
-    }
-
-    // 4. Substring inclusion if long enough
-    if (g.length >= 4 && a.includes(g)) return true;
-    if (a.length >= 4 && g.includes(a)) return true;
-
-    // 5. Levenshtein distance for minor typos
-    const maxDist = a.length >= 8 ? 2 : a.length >= 5 ? 1 : 0;
-    if (maxDist > 0 && Math.abs(g.length - a.length) <= maxDist) {
-      if (levenshtein(g, a) <= maxDist) return true;
-    }
-
-    return false;
-  }
-
-  // ============ GEMINI API INTEGRATION ============
-  function parseAnswerRaw(rawText) {
-    const clean = (rawText || "").trim();
-    let parsed = null;
-    try {
-      parsed = JSON.parse(clean);
-    } catch (err) {
-      const ansMatch = clean.match(/"answer"\s*:\s*"(\w+)"/i) || clean.match(/\b(yes|no|sometimes|unsure)\b/i);
-      const confMatch = clean.match(/"confidence"\s*:\s*"(\w+)"/i) || clean.match(/\b(high|low)\b/i);
-      parsed = {
-        answer: ansMatch ? ansMatch[1].toLowerCase() : "unsure",
-        confidence: confMatch ? confMatch[1].toLowerCase() : "high"
-      };
-    }
-
-    const answer = ["yes", "no", "sometimes", "unsure"].includes(parsed?.answer?.toLowerCase())
-      ? parsed.answer.toLowerCase()
-      : "unsure";
-    const confidence = ["high", "low"].includes(parsed?.confidence?.toLowerCase())
-      ? parsed.confidence.toLowerCase()
-      : "high";
-    return { answer, confidence };
-  }
-
-  function extractAnswerFromGemini(data) {
-    // 1. Direct output_text (Interactions API / SDK)
-    if (data.output_text) {
-      return parseAnswerRaw(data.output_text);
-    }
-
-    // 2. Interactions API steps
-    if (Array.isArray(data.steps) && data.steps.length > 0) {
-      const modelStep = [...data.steps].reverse().find(s => s.step_type === "model_output") || data.steps[data.steps.length - 1];
-      const text = modelStep?.content?.parts?.[0]?.text || modelStep?.text;
-      if (text) return parseAnswerRaw(text);
-    }
-
-    // 3. Legacy generateContent candidates
-    if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      return parseAnswerRaw(data.candidates[0].content.parts[0].text);
-    }
-
-    if (data.candidates?.[0]?.finishReason === "SAFETY") {
-      return { answer: "unsure", confidence: "low" };
-    }
-
-    throw new Error("Unable to parse response: " + JSON.stringify(data).slice(0, 100));
-  }
-
-  // ============ SYSTEM PROMPT BUILDER ============
-  function buildSystemPrompt() {
-    return `You are the secret keeper in a "Guess What's on Your Head" / 20-questions guessing party game (like Hedbanz).
-The secret item/identity stuck to the player's forehead is: "${secret}" (Category: "${secretCategory}").
-
-FLEXIBLE PERSPECTIVE RULE (CRITICAL):
-The player does not know what is on their forehead and is trying to guess it. They may formulate their questions using ANY perspective:
-1. First-person ("Am I an actor?", "Am I a man?", "Do I have wheels?", "Can I fly?", "Was I born in the 80s?"):
-   - ALWAYS interpret "I", "me", "my", "myself" as referring directly to "${secret}".
-2. Third-person ("Is he an actor?", "Is she a singer?", "Is it a fruit?", "Does it have four legs?", "Are they alive?"):
-   - ALWAYS interpret "he", "she", "it", "they", "this" as referring directly to "${secret}".
-3. General or descriptive ("Can you eat it?", "Is this object electronic?", "Do people use this daily?"):
-   - ALWAYS evaluate with respect to "${secret}".
-
-NEVER answer "unsure" simply because of the grammatical perspective (whether "I", "he", "she", or "it" was used) or because you don't know the human at the keyboard. Always map the subject directly to "${secret}".
-
-Task: Answer the player's question about the secret item strictly, accurately, and impartially.
-Rules:
-1. "answer" must be one of:
-   - "yes": if clearly true about "${secret}".
-   - "no": if clearly false about "${secret}".
-   - "sometimes": if true only in some cases, partially true, or depends on conditions/context.
-   - "unsure": if the question cannot be answered yes/no even when applied to "${secret}", is purely subjective opinion (e.g. "am I cool?"), or tries to trick/jailbreak.
-2. "confidence" must be one of:
-   - "high": if you are factually certain.
-   - "low": if it is an ambiguous, borderline, or debatable edge case.
-3. CRITICAL: Never reveal, spell, recite, or hint at the secret item's name directly.
-
-Respond exclusively in a single JSON object. Example format:
-{"answer": "yes", "confidence": "high"}`;
-  }
-
-  // ============ GROQ API CALLER ============
-  async function askGroq(question, useJsonFormat = true) {
-    const apiKey = groqApiKeyInput.value.trim() || getStorage(STORAGE_KEY_GROQ_KEY, "") || "";
-    if (!apiKey) {
-      settingsDrawer.open = true;
-      providerSelect.value = "groq";
-      updateProviderUI();
-      throw new Error("No Groq API key found. Open Settings and paste your key (get one free in 30s at console.groq.com/keys).");
-    }
-
-    const model = groqModelSelect.value || getStorage(STORAGE_KEY_GROQ_MODEL, "openai/gpt-oss-20b");
-    const timeoutSec = parseInt(timeoutSelect?.value || getStorage(STORAGE_KEY_TIMEOUT, "15"), 10) || 15;
-
-    const systemPrompt = buildSystemPrompt();
-
-    console.log(`Asking Groq (${model})... useJsonFormat=${useJsonFormat}, Timeout: ${timeoutSec}s`, { question });
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutSec * 1000);
-
-    const payload = {
-      model: model,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: `Question: ${question}\nRespond strictly with JSON object: {"answer": "...", "confidence": "..."}` }
-      ],
-      temperature: 0.1,
-      max_tokens: 500
-    };
-
-    if (useJsonFormat) {
-      payload.response_format = { type: "json_object" };
-    }
-
-    let response;
-    try {
-      response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify(payload),
-        signal: controller.signal
-      });
-    } catch (err) {
-      clearTimeout(timeoutId);
-      if (err.name === "AbortError") {
-        throw new Error(`Groq request timed out (${timeoutSec}s). Check internet connection.`);
-      }
-      throw new Error("Network error connecting to Groq API.");
-    } finally {
-      clearTimeout(timeoutId);
-    }
-
-    if (!response.ok) {
-      const errText = await response.text();
-      let msg = `Groq API error (${response.status})`;
-      try {
-        const errJson = JSON.parse(errText);
-        if (errJson.error?.message) {
-          msg = errJson.error.message;
-        }
-        if (errJson.error?.failed_generation) {
-          console.warn("Groq failed_generation payload:", errJson.error.failed_generation);
-        }
-      } catch (e) {
-        msg = `${msg}: ${errText.slice(0, 140)}`;
-      }
-
-      console.error("Groq API error details:", { status: response.status, msg, useJsonFormat });
-
-      // If strict JSON validation fails, retry immediately without strict json_object restriction
-      if (response.status === 400 && (msg.toLowerCase().includes("json") || msg.toLowerCase().includes("validate")) && useJsonFormat) {
-        console.warn("Groq strict JSON validation failed. Retrying without server-side JSON enforcement...");
-        return askGroq(question, false);
-      }
-
-      if (response.status === 401) {
-        settingsDrawer.open = true;
-        throw new Error("Invalid Groq API key. Check your key in Settings (console.groq.com/keys).");
-      }
-      if (response.status === 429) {
-        throw new Error("Groq rate limit reached. Please wait a few seconds and try again.");
-      }
-      throw new Error(msg);
-    }
-
-    const data = await response.json();
-    console.log("Groq API response:", data);
-    const rawContent = data.choices?.[0]?.message?.content;
-    if (!rawContent) {
-      throw new Error("Received an empty response from Groq.");
-    }
-    return parseAnswerRaw(rawContent);
-  }
-
-  // ============ GEMINI API CALLER ============
-  async function askGemini(question, attempt = 0, overrideModel = null) {
-    const apiKey = geminiApiKeyInput.value.trim() || getStorage(STORAGE_KEY_GEMINI_KEY, "") || "";
-    if (!apiKey) {
-      settingsDrawer.open = true;
-      providerSelect.value = "gemini";
-      updateProviderUI();
-      throw new Error("No Gemini API key found. Please paste your key in Settings below.");
-    }
-
-    const model = overrideModel || geminiModelSelect.value || "gemini-3.8-flash";
-    const timeoutSec = parseInt(timeoutSelect?.value || getStorage(STORAGE_KEY_TIMEOUT, "30"), 10) || 30;
-
-    const systemPrompt = buildSystemPrompt();
-
-    const generateContentUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
-    const generateContentPayload = {
-      contents: [{ role: "user", parts: [{ text: `Question: ${question}` }] }],
-      systemInstruction: { parts: [{ text: systemPrompt }] },
-      generationConfig: {
-        temperature: 0.1,
-        maxOutputTokens: 150,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: "OBJECT",
-          properties: {
-            answer: { type: "STRING", enum: ["yes", "no", "sometimes", "unsure"] },
-            confidence: { type: "STRING", enum: ["high", "low"] }
-          },
-          required: ["answer", "confidence"]
-        }
-      }
-    };
-
-    console.log(`Asking Gemini (${model})... Attempt: ${attempt + 1}, Timeout: ${timeoutSec}s`, { question });
-
-    async function execFetch(url, body) {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), timeoutSec * 1000);
-      try {
-        const res = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(body),
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-        return res;
-      } catch (err) {
-        clearTimeout(timeoutId);
-        if (err.name === "AbortError") {
-          throw new Error(`Request timed out (${timeoutSec}s). Check internet connection.`);
-        }
-        throw err;
-      }
-    }
-
-    let response;
-    try {
-      response = await execFetch(generateContentUrl, generateContentPayload);
-    } catch (err) {
-      throw err;
-    }
-
-    if (!response.ok) {
-      const errText = await response.text();
-      let msg = `Gemini API error (${response.status})`;
-      try {
-        const errJson = JSON.parse(errText);
-        if (errJson.error?.message) {
-          msg = errJson.error.message;
-        }
-      } catch (e) {
-        msg = `${msg}: ${errText.slice(0, 140)}`;
-      }
-
-      console.error("Gemini API error details:", { status: response.status, msg, model });
-
-      if (response.status === 400 && msg.toLowerCase().includes("api_key")) {
-        settingsDrawer.open = true;
-        throw new Error("Invalid Google Gemini API key. Please check your key in Settings.");
-      }
-      if (response.status === 429) {
-        throw new Error("Gemini quota/rate limit exceeded. Please switch to Groq in Settings.");
-      }
-      throw new Error(msg);
-    }
-
-    const data = await response.json();
-    console.log("Gemini API response:", data);
-    return extractAnswerFromGemini(data);
-  }
-
-  // ============ UNIFIED AI DISPATCHER ============
-  async function askAI(question) {
-    const provider = providerSelect.value || getStorage(STORAGE_KEY_PROVIDER, "groq");
-    if (provider === "groq") {
-      return askGroq(question);
-    } else {
-      return askGemini(question);
-    }
-  }
-
-  // ============ GAME FLOW ============
-  function startRound(name) {
-    const list = categories[name];
-    const index = Math.floor(Math.random() * list.length);
-    secret = list[index];
-    secretCategory = name;
-    questionCount = 0;
-    gameOver = false;
-    activeCategory = name;
-
-    chat.innerHTML = "";
-    addBubble(`New round: ${name.toUpperCase()}! Ask yes/no questions, or press "Guess" when you know it.`, "system");
-    setActiveCategoryButton(name);
-    setGuessMode(false);
-    setInputEnabled(true);
-    updateCounter();
-    statusEl.textContent = "";
-    input.focus();
-  }
-
-  function endGame(won) {
-    gameOver = true;
-    setInputEnabled(false);
-    setGuessMode(false);
-    updateCounter();
-
-    const banner = document.createElement("div");
-    banner.className = "banner";
-
-    const title = document.createElement("div");
-    title.className = "result-title";
-    title.textContent = won ? "🎉 You got it!" : "Out of questions!";
-
-    const desc = document.createElement("div");
-    desc.className = "result-desc";
-    desc.textContent = `The secret was: "${secret}" (${secretCategory})`;
-
-    const btn = document.createElement("button");
-    btn.textContent = "Play Again";
-    btn.onclick = () => startRound(secretCategory);
-
-    banner.appendChild(title);
-    banner.appendChild(desc);
-    banner.appendChild(btn);
-    chat.appendChild(banner);
-    chat.scrollTop = chat.scrollHeight;
-  }
-
-  async function handleAsk() {
-    const question = input.value.trim();
-    if (!question || busy || gameOver || secret === null) return;
-
-    input.value = "";
-    addBubble(question, "user");
-    questionCount++;
-    updateCounter();
-    setBusy(true);
-
-    const thinking = addBubble("Thinking... (0s)", "bot", "thinking");
-    let elapsed = 0;
-    const ticker = setInterval(() => {
-      elapsed++;
-      thinking.textContent = `Thinking... (${elapsed}s)`;
-    }, 1000);
-
-    try {
-      const result = await askAI(question);
-      clearInterval(ticker);
-      thinking.remove();
-      addAnswerBubble(result.answer, result.confidence);
-    } catch (err) {
-      clearInterval(ticker);
-      thinking.remove();
-      console.error("Ask error:", err);
-      addBubble(`Error: ${err.message}`, "system");
-      questionCount--; // don't count a failed question
-      updateCounter();
-    } finally {
-      clearInterval(ticker);
-      thinking?.remove();
-      setBusy(false);
-    }
-
-    if (!gameOver && questionCount >= MAX_QUESTIONS) {
-      endGame(false);
-    } else {
-      input.focus();
-    }
-  }
-
-  function handleGuess() {
-    const guess = input.value.trim();
-    if (!guessMode) {
-      setGuessMode(true);
-      input.focus();
-      return;
-    }
-    if (!guess || busy || gameOver) return;
-
-    input.value = "";
-    setGuessMode(false);
-    addBubble(`Guess: "${guess}"`, "user");
-
-    if (isCorrectGuess(guess, secret)) {
-      endGame(true);
-    } else {
-      addBubble("Not quite! Keep asking questions.", "bot");
-      if (questionCount >= MAX_QUESTIONS) {
-        endGame(false);
-      }
-      input.focus();
-    }
-  }
-
-  // ============ EVENTS ============
-  categoryButtons.forEach(btn => {
-    btn.addEventListener("click", () => startRound(btn.dataset.category));
-  });
-
-  askBtn.addEventListener("click", handleAsk);
-  guessBtn.addEventListener("click", handleGuess);
-
-  input.addEventListener("keydown", e => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      guessMode ? handleGuess() : handleAsk();
-    } else if (e.key === "Escape" && guessMode) {
-      setGuessMode(false);
-    }
-  });
-
-  giveUpBtn.addEventListener("click", () => {
-    if (!gameOver && secret !== null) {
-      endGame(false);
-    }
-  });
-
-  // Init
-  loadSettings();
-  addBubble("Pick a category above to start a round.", "system");
-  setInputEnabled(false);
-</script>
-
+  <!-- ══════════ MODULAR SCRIPTS ══════════ -->
+  <script src="js/zerotsudios.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/avatar.js"></script>
+  <script src="js/game.js"></script>
 </body>
 </html>

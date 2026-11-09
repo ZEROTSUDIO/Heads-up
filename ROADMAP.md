@@ -31,15 +31,19 @@ A lightweight browser-based 20-questions game where the player asks yes/no quest
 ## Phase 2: Neobrutalist UI & Expressive AI Face (v0.3)
 **Goal**: Elevate the visual identity with Zerotsudios UI styling and give the AI character an expressive reactive face.
 
-- [ ] Apply Zerotsudios neobrutalist aesthetic: Canvas Paper, Midnight Ink borders (`1.5px/2px`), mechanical offset drop shadows, Anton display headlines, and Space Mono telemetry
-- [ ] SVG/CSS cartoon character face with reactive states:
-  - Idle / Waiting
-  - Thinking / Evaluating
-  - Confident Yes / Hesitant Yes
-  - Firm No / Hesitant No
-  - Confused (for "unsure" answers)
-- [ ] Visual confidence meter animated below the character
-- [ ] Mobile responsive layout optimized for handheld screen play
+- [x] Separated codebase into clean modular files (`index.html`, `css/zerotsudios.css`, `css/game.css`, `js/ai.js`, `js/avatar.js`, `js/game.js`, `js/zerotsudios.js`)
+- [x] Apply Zerotsudios neobrutalist aesthetic: Canvas Paper, Midnight Ink borders (`1.5px/2px`), 0-blur mechanical drop shadows, Anton display headlines, and Space Mono telemetry
+- [x] Interactive SVG AI Character Face ("ORACLE-ZERO") with reactive animated states:
+  - Idle / Waiting (gentle floating breathing & blinking)
+  - Thinking / Evaluating (pupil darting, glowing antenna, wavy voice wave)
+  - Confident Yes (green grinning nod & sparkles) / Hesitant Yes (half-smirk)
+  - Firm No (red stern frown & head shake) / Hesitant No (wavy mouth)
+  - Confused / Unsure (yellow question mark eyes, zigzag mouth, head wobble)
+  - Victory (star eyes & celebration bounce) / Defeat (dizzy X eyes)
+- [x] Visual confidence meter & latency telemetry gauge animated below the character
+- [x] 20-Question segmented progress track bar
+- [x] Web Audio API 8-bit synthesized mechanical sound effects (clicks, pings, major-triad yes chimes, buzzers, victory fanfare) with toggle in Settings
+- [x] Mobile responsive layout optimized for handheld screen play
 
 ---
 

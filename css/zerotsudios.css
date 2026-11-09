@@ -1,0 +1,850 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;900&family=Space+Mono:wght@400;700&display=swap');
+
+/* ══════════════════════════════════════════════════════════
+   ZEROTSUDIOS DESIGN SYSTEM (v1.0.0)
+   Neobrutalist Print & Technical Technical Character Sheet System
+   ══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Canvas & Paper Surfaces */
+  --paper: #FFFFFF;
+  --paper-dim: #F4F1FA;
+  --card: #FFFFFF;
+  --obsidian: #0A0812;
+  --midnight: #140C24;
+  --midnight-border: #38225C;
+
+  /* Ink & Monochromes */
+  --ink: #0A090D;
+  --ink-soft: #4B4556;
+  --annot: #8C849B;
+
+  /* Studio Purple Spectrum */
+  --purple: #7C3AED;        /* Core Electric Violet - CTAs & Highlights */
+  --purple-deep: #5B1AA0;   /* Royal Deep Purple - Logo Base */
+  --purple-mid: #9333EA;    /* Vivid Amethyst - Data Accents */
+  --purple-light: #C06BF0;  /* Neon Orchid / Lilac - Badges & Glow */
+  --purple-soft: #DDD6FE;   /* Lavender Mist - Dark Subtitles */
+  --purple-ink: #1B0E33;    /* Midnight Violet Ink */
+
+  /* Semantic Token Mappings */
+  --blood: #9333EA;
+  --orange: #C06BF0;
+  --orange-ink: #0A090D;
+  --teal: #5B1AA0;
+  --teal-ink: #1E0A38;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: 'Archivo', sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Subtle architectural grain */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+}
+
+/* Typography Tokens */
+.font-display {
+  font-family: 'Anton', sans-serif;
+  letter-spacing: 0.01em;
+}
+
+.font-mono {
+  font-family: 'Space Mono', monospace;
+}
+
+.font-body {
+  font-family: 'Archivo', sans-serif;
+}
+
+.diag-word {
+  display: inline-block;
+  transform: skewY(-2deg);
+}
+
+/* Print Registration Crosshairs */
+.print-mark {
+  position: fixed;
+  z-index: 0;
+  pointer-events: none;
+  color: var(--ink);
+  opacity: 0.28;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.crosshair {
+  width: 14px;
+  height: 14px;
+  position: relative;
+}
+.crosshair::before, .crosshair::after {
+  content: "";
+  position: absolute;
+  background: var(--ink);
+}
+.crosshair::before { left: 6px; top: 0; width: 2px; height: 14px; }
+.crosshair::after { top: 6px; left: 0; height: 2px; width: 14px; }
+
+/* Halftone Pattern */
+.halftone {
+  background-image: radial-gradient(var(--ink) 1px, transparent 1.4px);
+  background-size: 9px 9px;
+  opacity: 0.12;
+}
+
+/* ══════════ PANELS & CONTAINERS ══════════ */
+.panel {
+  background: var(--card);
+  border: 1.5px solid var(--ink);
+}
+
+.panel-dark {
+  background: var(--obsidian) !important;
+  color: #FFFFFF !important;
+  border: 1.5px solid var(--ink);
+}
+
+.panel-offset {
+  background: var(--card);
+  border: 1.5px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.panel-offset:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+/* ══════════ CARD TITLE BARS ══════════ */
+.title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0A090D;
+  color: #FFFFFF;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.title-bar-dark {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #140C24;
+  color: #C06BF0;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 7px 14px;
+  border-bottom: 1px solid #38225C;
+  gap: 8px;
+}
+
+/* ══════════ BADGES ══════════ */
+.badge-lilac {
+  display: inline-flex;
+  align-items: center;
+  background: #C06BF0;
+  color: #0A090D !important;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1.5px solid #0A090D;
+}
+
+.badge-purple {
+  display: inline-flex;
+  align-items: center;
+  background: #7C3AED;
+  color: #FFFFFF;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1.5px solid #0A090D;
+}
+
+.badge-dark {
+  display: inline-flex;
+  align-items: center;
+  background: #0A090D;
+  color: #FFFFFF;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1.5px solid #0A090D;
+}
+
+.badge-white {
+  display: inline-flex;
+  align-items: center;
+  background: #FFFFFF;
+  color: #0A090D;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1.5px solid #0A090D;
+}
+
+.badge-green {
+  display: inline-flex;
+  align-items: center;
+  background: #4EE085;
+  color: #0A090D !important;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1.5px solid #0A090D;
+}
+
+.badge-red {
+  display: inline-flex;
+  align-items: center;
+  background: #FF5C5C;
+  color: #0A090D !important;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border: 1.5px solid #0A090D;
+}
+
+/* ══════════ FORM INPUT: NEOBRUTALIST ══════════ */
+.input-brutal {
+  background: #FFFFFF;
+  border: 1.5px solid #0A090D;
+  color: #0A090D;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  display: block;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.input-brutal:focus {
+  border-color: #7C3AED;
+  box-shadow: 3px 3px 0 #7C3AED;
+}
+.input-brutal::placeholder {
+  color: #8C849B;
+  font-style: normal;
+}
+
+/* Status Pulsing Pill */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border: 1.5px solid var(--ink);
+  padding: 6px 12px;
+  background: var(--card);
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background-color: #10B981;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.status-dot.purple {
+  background-color: var(--purple-light);
+}
+
+.tag-block {
+  display: inline-block;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  padding: 5px 12px;
+  border: 1.5px solid var(--ink);
+}
+.tag-purple { background: var(--purple); color: #fff; }
+.tag-blood  { background: var(--blood); color: #fff; }
+.tag-orange { background: var(--orange); color: #0A090D !important; font-weight: 800; }
+.tag-teal   { background: var(--teal); color: #fff; }
+.tag-dark   { background: var(--ink); color: #fff; }
+.tag-outline { background: transparent; border: 1.5px solid var(--ink); color: var(--ink); }
+
+/* ══════════ QUIRKY TILTY CARDS (SNAP-INTO-FOCUS) ══════════ */
+.card-tilty,
+.card-project {
+  background: var(--card);
+  border: 1.5px solid var(--ink);
+  transform: rotate(var(--r, -1.2deg));
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.2, 1), box-shadow 0.25s ease;
+  position: relative;
+}
+.card-tilty:hover,
+.card-project:hover {
+  transform: rotate(0deg) translateY(-6px) scale(1.01);
+  box-shadow: 8px 8px 0 var(--ink);
+  z-index: 20;
+}
+.card-tilty-alt {
+  background: var(--card);
+  border: 1.5px solid var(--ink);
+  transform: rotate(var(--r, 1.2deg));
+  transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.2, 1), box-shadow 0.25s ease;
+  position: relative;
+}
+.card-tilty-alt:hover {
+  transform: rotate(0deg) translateY(-6px) scale(1.01);
+  box-shadow: 8px 8px 0 var(--ink);
+  z-index: 20;
+}
+
+/* ══════════ FRAMED ART POSTERS & TAPE BADGES ══════════ */
+.framed-poster {
+  background: var(--card);
+  border: 1.5px solid var(--ink);
+  padding: 12px;
+  position: relative;
+  box-shadow: 10px 10px 0 var(--ink);
+  transform: rotate(var(--r, -1.5deg));
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.framed-poster:hover {
+  transform: rotate(0deg) translateY(-4px);
+  box-shadow: 12px 12px 0 var(--ink);
+}
+.framed-poster-inner {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--ink);
+  background: var(--paper-dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+/* Washi Tape / Sticker Badges */
+.badge-tape {
+  position: absolute;
+  font-family: 'Space Mono', monospace;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 5px 12px;
+  border: 1.5px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  z-index: 30;
+  white-space: nowrap;
+  pointer-events: auto;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.badge-tape:hover {
+  transform: scale(1.06) rotate(0deg) !important;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.badge-tape-tr {
+  top: -12px;
+  right: -12px;
+  transform: rotate(var(--r, 3deg));
+}
+.badge-tape-bl {
+  bottom: -14px;
+  left: -14px;
+  transform: rotate(var(--r, -3deg));
+}
+.badge-tape-tl {
+  top: -12px;
+  left: -12px;
+  transform: rotate(var(--r, -3deg));
+}
+.badge-tape-br {
+  bottom: -14px;
+  right: -14px;
+  transform: rotate(var(--r, 3deg));
+}
+
+/* ══════════ SASHA VOLKOV STACKED MOVE-LIST HEADER ══════════ */
+.title-bar-stacked {
+  display: inline-flex;
+  flex-direction: column;
+  width: fit-content;
+  box-shadow: 4px 4px 0 var(--ink);
+  border: 1.5px solid var(--ink);
+}
+.title-bar-stacked .title-bar-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: var(--purple-light);
+  color: #0A090D !important;
+  padding: 4px 12px;
+  font-weight: 800;
+  width: fit-content;
+  border-bottom: 1.5px solid var(--ink);
+}
+.title-bar-stacked .title-bar-main {
+  font-family: 'Anton', sans-serif;
+  color: #FFFFFF;
+  background: #0A090D;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  padding: 6px 14px 8px;
+  line-height: 0.95;
+  display: block;
+}
+
+/* ══════════ MODULAR SKILL & TELEMETRY CHIPS ══════════ */
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border: 1.5px solid var(--ink);
+  padding: 8px 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  user-select: none;
+}
+.chip:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0 var(--ink);
+  background: var(--paper-dim);
+}
+.chip-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 800;
+  color: #fff;
+}
+.chip-dot.purple { background: var(--purple); }
+.chip-dot.orange { background: var(--orange); color: #0A090D !important; }
+.chip-dot.teal   { background: var(--teal); }
+.chip-dot.blood  { background: var(--blood); }
+.chip-dot.dark   { background: var(--ink); }
+
+/* ══════════ DIAGONAL SPLIT POSTER BACKDROP ══════════ */
+.split-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.split-bg .a {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #180633 0%, #361066 100%);
+  clip-path: polygon(0 0, 64% 0, 46% 100%, 0% 100%);
+  opacity: 0.96;
+}
+.split-bg .b {
+  position: absolute;
+  inset: 0;
+  background: var(--purple-light);
+  clip-path: polygon(76% 0, 100% 0, 100% 100%, 58% 100%);
+  opacity: 0.45;
+}
+@media (max-width: 767px) {
+  .split-bg .a {
+    clip-path: polygon(0 0, 100% 0, 100% 68%, 0% 74%);
+  }
+  .split-bg .b {
+    clip-path: polygon(0 74%, 100% 68%, 100% 100%, 0% 100%);
+    opacity: 0.35;
+  }
+}
+
+/* ══════════ BUTTONS ══════════ */
+.btn-solid {
+  background: var(--ink);
+  color: #FFFFFF;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 13px;
+  padding: 13px 22px;
+  border: 1.5px solid var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-solid:hover {
+  background: var(--purple);
+  color: #FFFFFF;
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--ink);
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 13px;
+  padding: 13px 22px;
+  border: 1.5px solid var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-outline:hover {
+  background: var(--ink);
+  color: #FFFFFF;
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--purple);
+}
+
+.btn-purple {
+  background: var(--purple);
+  color: #FFFFFF;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 13px;
+  padding: 13px 22px;
+  border: 1.5px solid var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-purple:hover {
+  background: var(--purple-deep);
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.btn-lilac {
+  background: var(--purple-light);
+  color: #0A090D !important;
+  font-family: 'Space Mono', monospace;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 13px;
+  padding: 13px 22px;
+  border: 1.5px solid var(--ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.btn-lilac:hover {
+  background: #FFFFFF;
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+/* ══════════ MODULAR SKILL CHIPS ══════════ */
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--card);
+  border: 1.5px solid var(--ink);
+  padding: 10px 14px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+.chip:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 3px 3px 0 var(--ink);
+  background: var(--paper-dim);
+}
+.chip-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+}
+.chip-dot[style*="var(--orange)"] {
+  color: #0A090D !important;
+  font-weight: 800;
+}
+
+/* ══════════ FORM CONTROLS (Technical Neobrutalist) ══════════ */
+.input-text, .input-select, .input-textarea {
+  width: 100%;
+  background: var(--card);
+  border: 1.5px solid var(--ink);
+  color: var(--ink);
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  padding: 12px 14px;
+  outline: none;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+.input-text:focus, .input-select:focus, .input-textarea:focus {
+  border-color: var(--purple);
+  box-shadow: 3px 3px 0 var(--purple);
+}
+.input-label {
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+  color: var(--ink-soft);
+}
+
+/* Custom Checkbox */
+.checkbox-custom {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--ink);
+  background: var(--card);
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.15s ease;
+  display: inline-block;
+  vertical-align: middle;
+}
+.checkbox-custom:checked {
+  background-color: var(--purple);
+}
+.checkbox-custom:checked::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* ══════════ HUD TELEMETRY & STAT BARS ══════════ */
+.stat-bar {
+  height: 12px;
+  background: var(--paper-dim);
+  border: 1.5px solid var(--ink);
+  position: relative;
+  overflow: hidden;
+}
+.stat-fill {
+  height: 100%;
+  width: 0%;
+  transition: width 1.2s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.stat-fill.animated {
+  width: var(--target-width);
+}
+
+/* ══════════ DUAL-TONE SPLIT POSTER BACKDROP ══════════ */
+.split-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+.split-bg .a {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #180633 0%, #361066 100%);
+  clip-path: polygon(0 0, 64% 0, 46% 100%, 0% 100%);
+  opacity: 0.96;
+}
+.split-bg .b {
+  position: absolute;
+  inset: 0;
+  background: var(--purple-light);
+  clip-path: polygon(76% 0, 100% 0, 100% 100%, 58% 100%);
+  opacity: 0.45;
+}
+@media (max-width: 767px) {
+  .split-bg .a {
+    clip-path: polygon(0 0, 100% 0, 100% 68%, 0% 74%);
+  }
+  .split-bg .b {
+    clip-path: polygon(0 74%, 100% 68%, 100% 100%, 0% 100%);
+    opacity: 0.35;
+  }
+}
+
+/* ══════════ NAVIGATION & SIDEBAR ══════════ */
+.nav-link {
+  position: relative;
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-size: 13px;
+  text-transform: uppercase;
+  padding: 6px 2px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  width: 0%;
+  background: var(--purple);
+  transition: width 0.2s ease;
+}
+.nav-link:hover::after, .nav-link.active::after {
+  width: 100%;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border: 1.5px solid transparent;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.sidebar-item:hover {
+  border-color: var(--ink);
+  background: var(--paper-dim);
+  transform: translateX(4px);
+}
+.sidebar-item.active {
+  border-color: var(--ink);
+  background: var(--purple);
+  color: #FFFFFF;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+/* ══════════ MODAL DIALOG ══════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 9, 13, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+.modal-box {
+  background: var(--card);
+  border: 2px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--ink);
+  width: 100%;
+  max-width: 520px;
+  overflow: hidden;
+  transform: translateY(16px);
+  transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+.modal-overlay.active .modal-box {
+  transform: translateY(0);
+}
+
+/* Custom Selection */
+::selection {
+  background: var(--purple);
+  color: #FFFFFF;
+}
+
+@keyframes pulse {
+  50% { opacity: 0.5; }
+}

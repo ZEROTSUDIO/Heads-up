@@ -1,0 +1,926 @@
+/* ══════════════════════════════════════════════════════════
+   HEADS-UP GAME: NEOBRUTALIST STYLING (ZEROTSUDIOS UI SPEC)
+   Palette: Canvas Paper (#FFFFFF), Midnight Ink (#0A090D),
+   Electric Violet (#7C3AED), Neon Orchid/Lilac (#C06BF0),
+   Obsidian Plate (#0A0812), Dim Paper (#F4F1FA).
+   ══════════════════════════════════════════════════════════ */
+
+/* Main Container Layout */
+.app-viewport {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 18px 20px 40px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ══════════ TOP NAV / TELEMETRY HEADER ══════════ */
+.game-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--ink);
+  flex-wrap: wrap;
+}
+
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.brand-icon-box {
+  width: 44px;
+  height: 44px;
+  background: var(--purple);
+  border: 2px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-telemetry-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.header-btn {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 14px;
+  border: 1.5px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.header-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--ink);
+  background: var(--paper-dim);
+}
+
+.header-btn.btn-active-purple {
+  background: var(--purple);
+  color: #FFFFFF;
+}
+
+/* ══════════ MAIN GAME GRID ══════════ */
+.game-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .game-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ══════════ LEFT COLUMN: THE ORACLE BOOTH ══════════ */
+.oracle-booth {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.avatar-card {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--ink);
+  position: relative;
+  overflow: visible;
+}
+
+.avatar-card-inner {
+  padding: 24px 20px 20px;
+  background: var(--paper-dim);
+  border-bottom: 2px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* SVG Avatar Visual Elements & Animations */
+.avatar-stage {
+  width: 100%;
+  max-width: 240px;
+  height: 240px;
+  position: relative;
+  margin: 0 auto;
+}
+
+.oracle-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Idle State: Gentle floating breathing */
+.oracle-svg.state-idle {
+  animation: avatarFloat 4s ease-in-out infinite;
+}
+
+.oracle-svg.state-idle .eye-standard {
+  animation: eyeBlink 3.6s infinite;
+}
+
+/* Thinking State: Tilted, animated wavy mouth & flashing antenna */
+.oracle-svg.state-thinking {
+  transform: rotate(-3deg) scale(1.02);
+  animation: avatarJitter 0.3s ease-in-out infinite alternate;
+}
+
+.oracle-svg.state-thinking .mouth-idle { opacity: 0; }
+.oracle-svg.state-thinking .mouth-thinking { opacity: 1; animation: wavePulse 0.8s ease-in-out infinite alternate; }
+.oracle-svg.state-thinking .antenna-bulb { fill: #C06BF0; animation: glowPulse 0.4s infinite alternate; }
+.oracle-svg.state-thinking .antenna-ring { opacity: 0.8; animation: pingRing 0.8s cubic-bezier(0, 0, 0.2, 1) infinite; }
+.oracle-svg.state-thinking .eye-pupil { animation: pupilDart 0.8s ease-in-out infinite alternate; }
+
+/* Yes (High Confidence) State: Nodding bounce, wide happy grin */
+.oracle-svg.state-yes-high {
+  animation: avatarNod 0.5s ease-in-out 3;
+}
+.oracle-svg.state-yes-high .eye-standard,
+.oracle-svg.state-yes-high .eye-pupil,
+.oracle-svg.state-yes-high .mouth-idle { opacity: 0; }
+.oracle-svg.state-yes-high .eye-happy { opacity: 1; stroke: #4EE085; }
+.oracle-svg.state-yes-high .mouth-happy { opacity: 1; fill: #4EE085; }
+.oracle-svg.state-yes-high .antenna-bulb { fill: #4EE085; }
+.oracle-svg.state-yes-high #cheekLeft,
+.oracle-svg.state-yes-high #cheekRight { fill: #C06BF0; }
+
+/* Yes (Low / Hesitant) State: Slight smirk, cocked head */
+.oracle-svg.state-yes-low {
+  transform: rotate(4deg);
+}
+.oracle-svg.state-yes-low .mouth-idle { opacity: 0; }
+.oracle-svg.state-yes-low .mouth-happy { opacity: 1; fill: #FCD34D; }
+.oracle-svg.state-yes-low #browRight { transform: translateY(-3px); }
+
+/* No (High Confidence) State: Firm head shake, sharp stern eyes, frown */
+.oracle-svg.state-no-high {
+  animation: avatarShake 0.4s ease-in-out 3;
+}
+.oracle-svg.state-no-high .eye-standard,
+.oracle-svg.state-no-high .eye-pupil,
+.oracle-svg.state-no-high .mouth-idle { opacity: 0; }
+.oracle-svg.state-no-high .eye-stern { opacity: 1; stroke: #FF5C5C; }
+.oracle-svg.state-no-high .mouth-frown { opacity: 1; stroke: #FF5C5C; }
+.oracle-svg.state-no-high .antenna-bulb { fill: #FF5C5C; }
+
+/* No (Low / Hesitant) State */
+.oracle-svg.state-no-low {
+  transform: rotate(-4deg);
+}
+.oracle-svg.state-no-low .mouth-idle { opacity: 0; }
+.oracle-svg.state-no-low .mouth-frown { opacity: 1; stroke: #FCD34D; }
+
+/* Sometimes / Conditional State */
+.oracle-svg.state-sometimes {
+  transform: rotate(2deg);
+}
+.oracle-svg.state-sometimes .mouth-idle { opacity: 0; }
+.oracle-svg.state-sometimes .mouth-thinking { opacity: 1; stroke: #C06BF0; }
+.oracle-svg.state-sometimes .antenna-bulb { fill: #C06BF0; }
+
+/* Unsure State: Spiral / question marks, zigzag mouth, wobble */
+.oracle-svg.state-unsure {
+  animation: avatarWobble 0.8s ease-in-out infinite;
+}
+.oracle-svg.state-unsure .eye-standard,
+.oracle-svg.state-unsure .eye-pupil,
+.oracle-svg.state-unsure .mouth-idle { opacity: 0; }
+.oracle-svg.state-unsure .eye-unsure { opacity: 1; }
+.oracle-svg.state-unsure .mouth-unsure { opacity: 1; stroke: #FCD34D; }
+.oracle-svg.state-unsure .antenna-bulb { fill: #FCD34D; }
+
+/* Win State: Superstar celebration */
+.oracle-svg.state-win {
+  animation: avatarBounce 0.6s ease-in-out infinite;
+}
+.oracle-svg.state-win .eye-standard,
+.oracle-svg.state-win .eye-pupil,
+.oracle-svg.state-win .mouth-idle { opacity: 0; }
+.oracle-svg.state-win .eye-star { opacity: 1; }
+.oracle-svg.state-win .mouth-happy { opacity: 1; fill: #FCD34D; }
+.oracle-svg.state-win .antenna-bulb { fill: #FCD34D; }
+
+/* Lose State: Dizzy X eyes */
+.oracle-svg.state-lose {
+  transform: translateY(6px);
+}
+.oracle-svg.state-lose .eye-standard,
+.oracle-svg.state-lose .eye-pupil,
+.oracle-svg.state-lose .mouth-idle { opacity: 0; }
+.oracle-svg.state-lose .eye-dead { opacity: 1; }
+.oracle-svg.state-lose .mouth-dead { opacity: 1; }
+.oracle-svg.state-lose .antenna-bulb { fill: #4B4556; }
+
+/* Avatar Keyframe Definitions */
+@keyframes avatarFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes eyeBlink {
+  0%, 94%, 98%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); transform-origin: center; }
+}
+
+@keyframes avatarJitter {
+  0% { transform: rotate(-2deg) translateY(0); }
+  100% { transform: rotate(-4deg) translateY(-2px); }
+}
+
+@keyframes avatarNod {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+@keyframes avatarShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+
+@keyframes avatarWobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+@keyframes avatarBounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.03); }
+}
+
+@keyframes glowPulse {
+  0% { filter: drop-shadow(0 0 2px #C06BF0); }
+  100% { filter: drop-shadow(0 0 8px #C06BF0); }
+}
+
+@keyframes pingRing {
+  0% { transform: scale(0.8); opacity: 0.8; transform-origin: 80px 14px; }
+  100% { transform: scale(2.2); opacity: 0; transform-origin: 80px 14px; }
+}
+
+@keyframes pupilDart {
+  0% { transform: translateX(-3px); }
+  100% { transform: translateX(3px); }
+}
+
+@keyframes wavePulse {
+  0% { transform: scaleY(0.8); transform-origin: 77px 103px; }
+  100% { transform: scaleY(1.3); transform-origin: 77px 103px; }
+}
+
+/* Avatar Telemetry Sub-panel */
+.avatar-telemetry-bar {
+  width: 100%;
+  margin-top: 14px;
+  background: var(--obsidian);
+  color: #FFFFFF;
+  border: 1.5px solid var(--ink);
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-family: 'Space Mono', monospace;
+}
+
+.telemetry-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 10.5px;
+}
+
+.telemetry-label {
+  color: var(--annot);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.telemetry-value {
+  color: var(--purple-light);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.telemetry-subval {
+  font-size: 10px;
+  font-weight: 700;
+  color: #DDD6FE;
+  min-width: 65px;
+  text-align: right;
+}
+
+.telemetry-gauge-wrap {
+  flex: 1;
+  height: 8px;
+  background: #1F1535;
+  border: 1px solid #38225C;
+  overflow: hidden;
+  position: relative;
+}
+
+.telemetry-gauge-fill {
+  height: 100%;
+  background: var(--purple);
+  transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+.telemetry-gauge-fill.fill-green { background: #4EE085; }
+.telemetry-gauge-fill.fill-red   { background: #FF5C5C; }
+.telemetry-gauge-fill.fill-lilac { background: #C06BF0; }
+.telemetry-gauge-fill.fill-amber { background: #FCD34D; }
+.telemetry-gauge-fill.fill-purple { background: #7C3AED; }
+.telemetry-gauge-fill.pulse-violet {
+  background: var(--purple-light);
+  animation: pulse 1s infinite alternate;
+}
+
+/* Secret Mask Status Card (Forehead Card Simulator) */
+.forehead-card {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: 14px 16px;
+  position: relative;
+}
+
+.forehead-card-header {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.forehead-badge {
+  font-family: 'Anton', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  background: var(--paper-dim);
+  border: 1.5px dashed var(--ink);
+  color: var(--ink);
+  text-align: center;
+}
+
+/* ══════════ RIGHT COLUMN: INTERROGATION CONSOLE ══════════ */
+.console-panel {
+  background: var(--paper);
+  border: 2px solid var(--ink);
+  box-shadow: 8px 8px 0 var(--ink);
+  display: flex;
+  flex-direction: column;
+  min-height: 580px;
+  position: relative;
+}
+
+/* Progress Tracker Bar (20 Question slots) */
+.progress-tracker-wrap {
+  padding: 10px 16px;
+  background: var(--paper-dim);
+  border-bottom: 2px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tracker-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tracker-slots-row {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  gap: 3px;
+  height: 10px;
+}
+
+.tracker-slot {
+  background: #E5E1EE;
+  border: 1px solid var(--ink);
+  transition: background-color 0.2s ease;
+}
+
+.tracker-slot.used {
+  background: var(--ink);
+}
+
+.tracker-slot.active {
+  background: var(--purple);
+}
+
+/* Category Selector Strip */
+.category-strip {
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--ink);
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.category-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--annot);
+  margin-right: 4px;
+}
+
+.category-chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.category-chip-btn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink);
+  background: var(--paper-dim);
+}
+
+.category-chip-btn.active {
+  background: var(--ink);
+  color: #FFFFFF;
+  box-shadow: 3px 3px 0 var(--purple);
+}
+
+.category-chip-btn.active .chip-dot.purple { background: var(--purple-light); }
+
+/* Dialogue Feed / Chat Area */
+.chat-feed {
+  flex: 1;
+  padding: 18px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 400px;
+  min-height: 280px;
+  background: #FAF8FD;
+}
+
+/* Chat Dialogue Bubbles */
+.bubble {
+  max-width: 82%;
+  padding: 12px 16px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  border: 1.5px solid var(--ink);
+  position: relative;
+  word-break: break-word;
+}
+
+/* Player Bubble: Midnight Ink Dark Theme */
+.bubble.user {
+  align-self: flex-end;
+  background: var(--ink);
+  color: #FFFFFF;
+  box-shadow: 4px 4px 0 var(--purple);
+  font-family: 'Archivo', sans-serif;
+  font-weight: 500;
+}
+
+.bubble.user::before {
+  content: "YOU // QUESTION";
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--purple-soft);
+  margin-bottom: 4px;
+}
+
+.bubble.user.guess-bubble::before {
+  content: "YOU // FINAL GUESS";
+  color: #FCD34D;
+}
+
+/* AI Oracle Bubble */
+.bubble.bot {
+  align-self: flex-start;
+  background: #FFFFFF;
+  color: var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.bubble.bot::before {
+  content: "ORACLE // RESPONSE";
+  display: block;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--annot);
+  margin-bottom: 6px;
+}
+
+/* Thinking Indicator Bubble */
+.bubble.thinking {
+  background: var(--paper-dim);
+  border: 1.5px dashed var(--purple);
+  box-shadow: 3px 3px 0 var(--purple);
+  font-family: 'Space Mono', monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--purple);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bubble.thinking .dot-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--purple);
+  animation: pulse 1s infinite;
+}
+
+/* Answer Badge Wrapper */
+.answer-tag-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.badge-answer {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Anton', sans-serif;
+  font-size: 20px;
+  letter-spacing: 0.05em;
+  padding: 4px 14px 6px;
+  border: 1.5px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+  text-transform: uppercase;
+}
+
+.badge-answer.yes {
+  background: #4EE085;
+  color: #0A090D !important;
+}
+
+.badge-answer.no {
+  background: #FF5C5C;
+  color: #0A090D !important;
+}
+
+.badge-answer.sometimes {
+  background: #C06BF0;
+  color: #0A090D !important;
+  font-weight: 800;
+}
+
+.badge-answer.unsure {
+  background: #FFFFFF;
+  color: #0A090D;
+}
+
+.badge-hesitant {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #FCD34D;
+  color: #0A090D !important;
+  padding: 3px 8px;
+  border: 1.5px solid var(--ink);
+}
+
+/* System Message Banner */
+.bubble.system {
+  align-self: center;
+  max-width: 95%;
+  background: var(--paper-dim);
+  border: 1.5px solid var(--ink);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: center;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+/* Victory / Game Over Banners */
+.game-result-card {
+  background: #FFFFFF;
+  border: 2px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+  padding: 20px;
+  text-align: center;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.game-result-card.won {
+  border-color: #0A090D;
+  background: #F4FFF7;
+}
+
+.game-result-card.lost {
+  border-color: #0A090D;
+  background: #FFF5F5;
+}
+
+.result-headline {
+  font-family: 'Anton', sans-serif;
+  font-size: 28px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.result-headline.won { color: #0A090D; }
+.result-headline.lost { color: #DC2626; }
+
+.result-secret-reveal {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  background: #FFFFFF;
+  padding: 8px 16px;
+  border: 1.5px solid var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+/* ══════════ INPUT COMMAND BAR ══════════ */
+.command-deck {
+  padding: 16px 20px;
+  background: var(--paper);
+  border-top: 2px solid var(--ink);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.command-inputs-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.input-game-deck {
+  flex: 1;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 12px 16px;
+  border: 2px solid var(--ink);
+  background: #FFFFFF;
+  color: var(--ink);
+  outline: none;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.input-game-deck:focus {
+  border-color: var(--purple);
+  box-shadow: 4px 4px 0 var(--purple);
+}
+
+.input-game-deck:disabled {
+  background: #E5E1EE;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.command-deck.guess-active .input-game-deck {
+  border-color: #C06BF0;
+  background: #FAF5FF;
+  box-shadow: 4px 4px 0 #0A090D;
+}
+
+.command-deck.guess-active .input-game-deck:focus {
+  box-shadow: 4px 4px 0 #C06BF0;
+}
+
+.command-btn {
+  font-family: 'Space Mono', monospace;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0 20px;
+  border: 2px solid var(--ink);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.command-btn:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.command-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.command-btn.btn-ask {
+  background: var(--purple);
+  color: #FFFFFF;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.command-btn.btn-ask:hover:not(:disabled) {
+  background: var(--purple-deep);
+}
+
+.command-btn.btn-guess {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.command-deck.guess-active .command-btn.btn-guess {
+  background: var(--purple-light);
+  color: var(--ink) !important;
+  font-weight: 800;
+  box-shadow: 4px 4px 0 var(--ink);
+}
+
+.command-btn.btn-giveup {
+  background: transparent;
+  color: var(--ink-soft);
+  border: 1.5px solid var(--ink);
+  padding: 6px 12px;
+  font-size: 10.5px;
+}
+
+.command-btn.btn-giveup:hover:not(:disabled) {
+  background: #FFF1F2;
+  color: #E11D48;
+}
+
+.deck-secondary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  color: var(--annot);
+}
+
+/* ══════════ SETTINGS DRAWER / MODAL ══════════ */
+.settings-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 8, 18, 0.7);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.settings-modal-backdrop.open {
+  display: flex;
+}
+
+.settings-modal-card {
+  width: 100%;
+  max-width: 580px;
+  background: var(--obsidian);
+  color: #FFFFFF;
+  border: 2px solid var(--paper);
+  box-shadow: 10px 10px 0 var(--purple);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.settings-modal-inner {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--purple-soft);
+}
+
+.settings-select,
+.settings-input {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  padding: 10px 12px;
+  background: #140C24;
+  color: #FFFFFF;
+  border: 1.5px solid #38225C;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.settings-select:focus,
+.settings-input:focus {
+  border-color: var(--purple-light);
+  box-shadow: 3px 3px 0 var(--purple);
+}
+
+.settings-help {
+  font-size: 11px;
+  color: var(--annot);
+  line-height: 1.4;
+}
+
+.settings-help a {
+  color: var(--purple-light);
+  text-decoration: underline;
+}
+
+.key-status-indicator {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.key-status-indicator.saved { color: #4EE085; }
+.key-status-indicator.empty { color: #FCD34D; }
+
+/* ══════════ RESPONSIVE ADJUSTMENTS ══════════ */
+@media (max-width: 640px) {
+  .app-viewport {
+    padding: 12px 12px 30px;
+  }
+  .command-inputs-row {
+    flex-direction: column;
+  }
+  .command-btn {
+    padding: 12px 16px;
+  }
+  .bubble {
+    max-width: 95%;
+  }
+}
