@@ -51,12 +51,14 @@ A lightweight browser-based 20-questions game where the player asks yes/no quest
 **Goal**: Add replayability, gamification, and rich feedback loops. Broken down into bite-sized sub-phases:
 
 ### Phase 3.1: Dossier / Known Facts Matrix (Evidence Board)
-- [ ] Collapsible or tabbed "EVIDENCE DOSSIER" panel summarizing all answered questions
-- [ ] Category-sorted matrix chips:
+- [x] Collapsible or tabbed "EVIDENCE DOSSIER" panel summarizing all answered questions
+- [x] Category-sorted matrix chips:
   - 🟢 **CONFIRMED (YES)**: Traits confirmed true
   - 🔴 **RULED OUT (NO)**: Traits confirmed false
   - 🟣 **CONDITIONAL (SOMETIMES)** & ⚪ **AMBIGUOUS (UNSURE)**
-- [ ] Saves player from scrolling through long chat logs
+- [x] Saves player from scrolling through long chat logs
+- [x] Live telemetry summary counters (`RECORDED`, `YES`, `NO`, `SOMETIMES`)
+- [x] Seamless view switching (`INQUIRY FEED` vs `EVIDENCE DOSSIER`) with persistent command bar
 
 ### Phase 3.2: Arcade Scoring, Ranks & Win Streaks
 - [ ] Dynamic scoring formula: Base score (1000) minus question penalties plus time bonuses

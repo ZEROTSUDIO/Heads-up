@@ -136,8 +136,93 @@
           </button>
         </div>
 
+        <!-- Console View Navigation Tabs -->
+        <div class="console-nav-tabs">
+          <button id="tabChatLog" class="console-tab-btn active" type="button">
+            <span>💬 INQUIRY FEED</span>
+          </button>
+          <button id="tabDossier" class="console-tab-btn" type="button">
+            <span>📋 EVIDENCE DOSSIER</span>
+            <span id="dossierCountBadge" class="tab-pill">0</span>
+          </button>
+        </div>
+
         <!-- Dialogue Feed Log -->
         <div id="chatFeed" class="chat-feed"></div>
+
+        <!-- Evidence Dossier View (Matrix Board) -->
+        <div id="dossierPanel" class="dossier-panel" style="display: none;">
+          <!-- Telemetry Stats Strip -->
+          <div class="dossier-stats-strip">
+            <div class="dossier-stat-item">
+              <span class="dossier-stat-label">RECORDED:</span>
+              <span id="statTotalQuestions" class="dossier-stat-val">0</span>
+            </div>
+            <div class="dossier-stat-item">
+              <span class="dossier-stat-label text-green">YES:</span>
+              <span id="statYesCount" class="dossier-stat-val">0</span>
+            </div>
+            <div class="dossier-stat-item">
+              <span class="dossier-stat-label text-red">NO:</span>
+              <span id="statNoCount" class="dossier-stat-val">0</span>
+            </div>
+            <div class="dossier-stat-item">
+              <span class="dossier-stat-label text-lilac">SOMETIMES:</span>
+              <span id="statSometimesCount" class="dossier-stat-val">0</span>
+            </div>
+          </div>
+
+          <!-- 4-Quadrant Evidence Columns -->
+          <div class="dossier-columns-grid">
+            <!-- Confirmed True (YES) -->
+            <div class="dossier-col col-yes">
+              <div class="dossier-col-header">
+                <span class="badge-answer yes" style="font-size: 11px; padding: 2px 7px;">YES</span>
+                <span>CONFIRMED TRAITS</span>
+                <span id="dossierYesCount" class="dossier-col-counter">0</span>
+              </div>
+              <div id="dossierListYes" class="dossier-col-body">
+                <div class="dossier-empty">No confirmed traits yet</div>
+              </div>
+            </div>
+
+            <!-- Ruled Out (NO) -->
+            <div class="dossier-col col-no">
+              <div class="dossier-col-header">
+                <span class="badge-answer no" style="font-size: 11px; padding: 2px 7px;">NO</span>
+                <span>RULED OUT</span>
+                <span id="dossierNoCount" class="dossier-col-counter">0</span>
+              </div>
+              <div id="dossierListNo" class="dossier-col-body">
+                <div class="dossier-empty">No ruled out traits yet</div>
+              </div>
+            </div>
+
+            <!-- Conditional (SOMETIMES) -->
+            <div class="dossier-col col-sometimes">
+              <div class="dossier-col-header">
+                <span class="badge-answer sometimes" style="font-size: 11px; padding: 2px 7px;">SOMETIMES</span>
+                <span>CONDITIONAL</span>
+                <span id="dossierSometimesCount" class="dossier-col-counter">0</span>
+              </div>
+              <div id="dossierListSometimes" class="dossier-col-body">
+                <div class="dossier-empty">No conditional traits</div>
+              </div>
+            </div>
+
+            <!-- Ambiguous (UNSURE) -->
+            <div class="dossier-col col-unsure">
+              <div class="dossier-col-header">
+                <span class="badge-answer unsure" style="font-size: 11px; padding: 2px 7px;">UNSURE</span>
+                <span>AMBIGUOUS</span>
+                <span id="dossierUnsureCount" class="dossier-col-counter">0</span>
+              </div>
+              <div id="dossierListUnsure" class="dossier-col-body">
+                <div class="dossier-empty">None</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- Command Deck & Input Bar -->
         <div id="commandDeck" class="command-deck">

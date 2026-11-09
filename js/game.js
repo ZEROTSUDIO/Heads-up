@@ -42,11 +42,42 @@
   let activeCategory = null;
   let sfxEnabled = true;
 
+  // Dossier & View State
+  let activeConsoleTab = "chat";
+  let dossierFacts = {
+    yes: [],
+    no: [],
+    sometimes: [],
+    unsure: []
+  };
+
   // Avatar controller instance
   let avatar = null;
 
   // ============ DOM ELEMENTS ============
   const chatFeed = document.getElementById("chatFeed");
+  const dossierPanel = document.getElementById("dossierPanel");
+  const tabChatLog = document.getElementById("tabChatLog");
+  const tabDossier = document.getElementById("tabDossier");
+  const dossierCountBadge = document.getElementById("dossierCountBadge");
+
+  // Dossier Summary Stats Elements
+  const statTotalQuestions = document.getElementById("statTotalQuestions");
+  const statYesCount = document.getElementById("statYesCount");
+  const statNoCount = document.getElementById("statNoCount");
+  const statSometimesCount = document.getElementById("statSometimesCount");
+
+  // Dossier Category Counters & Lists
+  const dossierYesCount = document.getElementById("dossierYesCount");
+  const dossierNoCount = document.getElementById("dossierNoCount");
+  const dossierSometimesCount = document.getElementById("dossierSometimesCount");
+  const dossierUnsureCount = document.getElementById("dossierUnsureCount");
+
+  const dossierListYes = document.getElementById("dossierListYes");
+  const dossierListNo = document.getElementById("dossierListNo");
+  const dossierListSometimes = document.getElementById("dossierListSometimes");
+  const dossierListUnsure = document.getElementById("dossierListUnsure");
+
   const gameInput = document.getElementById("gameInput");
   const askBtn = document.getElementById("askBtn");
   const guessBtn = document.getElementById("guessBtn");
@@ -359,6 +390,55 @@
     }
   }
 
+  // ============ EVIDENCE DOSSIER CONTROLLER ============
+  function renderDossier() {
+    const total = dossierFacts.yes.length + dossierFacts.no.length + dossierFacts.sometimes.length + dossierFacts.unsure.length;
+
+    if (dossierCountBadge) dossierCountBadge.textContent = total;
+    if (statTotalQuestions) statTotalQuestions.textContent = total;
+    if (statYesCount) statYesCount.textContent = dossierFacts.yes.length;
+    if (statNoCount) statNoCount.textContent = dossierFacts.no.length;
+    if (statSometimesCount) statSometimesCount.textContent = dossierFacts.sometimes.length;
+
+    if (dossierYesCount) dossierYesCount.textContent = dossierFacts.yes.length;
+    if (dossierNoCount) dossierNoCount.textContent = dossierFacts.no.length;
+    if (dossierSometimesCount) dossierSometimesCount.textContent = dossierFacts.sometimes.length;
+    if (dossierUnsureCount) dossierUnsureCount.textContent = dossierFacts.unsure.length;
+
+    renderDossierSection(dossierListYes, dossierFacts.yes, "✓", "No confirmed traits yet");
+    renderDossierSection(dossierListNo, dossierFacts.no, "✕", "No ruled out traits yet");
+    renderDossierSection(dossierListSometimes, dossierFacts.sometimes, "◐", "No conditional traits");
+    renderDossierSection(dossierListUnsure, dossierFacts.unsure, "?", "None");
+  }
+
+  function renderDossierSection(container, list, icon, emptyMsg) {
+    if (!container) return;
+    if (list.length === 0) {
+      container.innerHTML = `<div class="dossier-empty">${emptyMsg}</div>`;
+      return;
+    }
+    container.innerHTML = list.map(item => `
+      <div class="dossier-item" title="Question #${item.num}">
+        <span class="dossier-item-icon">${icon}</span>
+        <div class="dossier-item-text">
+          <span class="dossier-item-num">#${item.num}</span>
+          <span>${escapeHtml(item.question)}</span>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function setConsoleTab(tabName) {
+    activeConsoleTab = tabName;
+    if (tabChatLog) tabChatLog.classList.toggle("active", tabName === "chat");
+    if (tabDossier) tabDossier.classList.toggle("active", tabName === "dossier");
+    if (chatFeed) chatFeed.style.display = tabName === "chat" ? "flex" : "none";
+    if (dossierPanel) dossierPanel.style.display = tabName === "dossier" ? "flex" : "none";
+    if (tabName === "chat" && chatFeed) {
+      chatFeed.scrollTop = chatFeed.scrollHeight;
+    }
+  }
+
   // ============ GAME LOOP ============
   function startRound(name, silent = false) {
     const list = categories[name];
@@ -371,6 +451,11 @@
     questionCount = 0;
     gameOver = false;
     activeCategory = name;
+
+    // Reset Dossier state
+    dossierFacts = { yes: [], no: [], sometimes: [], unsure: [] };
+    renderDossier();
+    setConsoleTab("chat");
 
     chatFeed.innerHTML = "";
     addBubble(`PROTOCOL ENGAGED: Target category "${name.toUpperCase()}". The secret identity has been mounted to your forehead. Ask yes/no questions, or press "GUESS" when ready.`, "system");
@@ -467,6 +552,15 @@
 
       // Update avatar facial state
       avatar.respondToAnswer(result.answer, result.confidence, result.latencyMs);
+
+      // Record to Evidence Dossier
+      const normalizedKey = ["yes", "no", "sometimes", "unsure"].includes(key) ? key : "unsure";
+      dossierFacts[normalizedKey].push({
+        question: question,
+        confidence: result.confidence,
+        num: questionCount
+      });
+      renderDossier();
 
     } catch (err) {
       clearInterval(ticker);
@@ -600,6 +694,21 @@
 
   // ============ EVENT BINDINGS ============
   function bindEvents() {
+    // Console Navigation Tabs (Log vs Dossier)
+    if (tabChatLog) {
+      tabChatLog.addEventListener("click", () => {
+        playSfx("click");
+        setConsoleTab("chat");
+      });
+    }
+
+    if (tabDossier) {
+      tabDossier.addEventListener("click", () => {
+        playSfx("click");
+        setConsoleTab("dossier");
+      });
+    }
+
     // Category chips
     document.querySelectorAll(".category-chip-btn").forEach(btn => {
       btn.addEventListener("click", () => startRound(btn.dataset.category));
