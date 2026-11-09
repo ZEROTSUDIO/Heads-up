@@ -271,6 +271,42 @@
     chatFeed.scrollTop = chatFeed.scrollHeight;
   }
 
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function addIncorrectGuessBubble(guess) {
+    const div = document.createElement("div");
+    div.className = "bubble bot guess-reject";
+
+    const wrap = document.createElement("div");
+    wrap.className = "answer-tag-wrap";
+
+    const badge = document.createElement("span");
+    badge.className = "badge-answer no";
+    badge.textContent = "INCORRECT";
+
+    const hesBadge = document.createElement("span");
+    hesBadge.className = "badge-hesitant";
+    hesBadge.style.background = "#FF5C5C";
+    hesBadge.style.color = "#0A090D";
+    hesBadge.textContent = "GUESS REJECTED";
+
+    const desc = document.createElement("div");
+    desc.className = "guess-feedback-desc";
+    desc.innerHTML = `Target identity is <strong>NOT</strong> &ldquo;${escapeHtml(guess)}&rdquo;. Continue questioning!`;
+
+    wrap.appendChild(badge);
+    wrap.appendChild(hesBadge);
+    div.appendChild(wrap);
+    div.appendChild(desc);
+
+    chatFeed.appendChild(div);
+    chatFeed.scrollTop = chatFeed.scrollHeight;
+  }
+
   function updateTracker() {
     if (counterText) {
       counterText.textContent = gameOver
@@ -471,7 +507,7 @@
     } else {
       playSfx("no");
       avatar.setState("no-high");
-      addBubble(`NEGATIVE: "${guess}" is incorrect. Continue questioning.`, "bot");
+      addIncorrectGuessBubble(guess);
       if (questionCount >= MAX_QUESTIONS) {
         endGame(false);
       }

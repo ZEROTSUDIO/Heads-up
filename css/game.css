@@ -565,6 +565,27 @@
   margin-bottom: 6px;
 }
 
+/* Guess Rejected Bubble */
+.bubble.bot.guess-reject {
+  border-left: 4px solid #FF5C5C;
+}
+
+.bubble.bot.guess-reject::before {
+  content: "ORACLE // GUESS VERDICT";
+  color: #FF5C5C;
+}
+
+.guess-feedback-desc {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--ink);
+  margin-top: 8px;
+  line-height: 1.45;
+  background: #FFF5F5;
+  border: 1px dashed #FF8585;
+  padding: 6px 10px;
+}
+
 /* Thinking Indicator Bubble */
 .bubble.thinking {
   background: var(--paper-dim);
