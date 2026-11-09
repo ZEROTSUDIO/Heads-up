@@ -48,13 +48,31 @@ A lightweight browser-based 20-questions game where the player asks yes/no quest
 ---
 
 ## Phase 3: Gameplay Depth & Feedback (v0.4)
-**Goal**: Add replayability, gamification, and rich feedback loops.
+**Goal**: Add replayability, gamification, and rich feedback loops. Broken down into bite-sized sub-phases:
 
-- [ ] Scoring system: reward fewer questions asked and bonus for speed
-- [ ] Clue/Hint system: unlockable after question 10 or 15 with limited uses
-- [ ] Collapsible question history drawer with color-coded answer chips (`YES`, `NO`, `SOMETIMES`, `UNSURE`)
-- [ ] Web Audio API synthesized sound effects (click, thinking chime, correct guess fanfare, game over buzz)
-- [ ] Undo last question option
+### Phase 3.1: Dossier / Known Facts Matrix (Evidence Board)
+- [ ] Collapsible or tabbed "EVIDENCE DOSSIER" panel summarizing all answered questions
+- [ ] Category-sorted matrix chips:
+  - 🟢 **CONFIRMED (YES)**: Traits confirmed true
+  - 🔴 **RULED OUT (NO)**: Traits confirmed false
+  - 🟣 **CONDITIONAL (SOMETIMES)** & ⚪ **AMBIGUOUS (UNSURE)**
+- [ ] Saves player from scrolling through long chat logs
+
+### Phase 3.2: Arcade Scoring, Ranks & Win Streaks
+- [ ] Dynamic scoring formula: Base score (1000) minus question penalties plus time bonuses
+- [ ] Retro arcade Rank system (**RANK S**, **A**, **B**, **C**) displayed on victory card
+- [ ] Win streak and best streak tracking persisted in `localStorage`
+- [ ] Score display in top header telemetry bar
+
+### Phase 3.3: Satellite Intel / AI Cryptic Clue System
+- [ ] "REQUEST INTEL" button (unlocks after question 8 or costs 2 question slots)
+- [ ] Specialized system prompt instruction to generate a cryptic, high-flavor clue without giving away the name
+- [ ] Dedicated styled transmission bubble and avatar reaction
+
+### Phase 3.4: Question Rewind (Undo) & Session QoL
+- [ ] "Undo Last Question" button to rewind accidental typos or misclicks
+- [ ] Round restart confirmation and clean state wipe
+- [ ] Sound toggle indicator badge in UI
 
 ---
 
