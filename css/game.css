@@ -933,6 +933,113 @@
   box-shadow: 3px 3px 0 var(--ink);
 }
 
+/* ══════════ ARCADE SCORECARD (PER SESSION) ══════════ */
+.scorecard-wrap {
+  width: 100%;
+  max-width: 440px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--ink);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 6px 0 10px;
+  text-align: left;
+}
+
+.scorecard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1.5px dashed var(--ink);
+  padding-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.scorecard-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--annot);
+}
+
+.scorecard-rank-badge {
+  font-family: 'Anton', sans-serif;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  padding: 3px 10px 4px;
+  border: 1.5px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+}
+
+.scorecard-rank-badge.rank-s {
+  background: #FCD34D;
+  color: #0A090D;
+}
+
+.scorecard-rank-badge.rank-a {
+  background: #7C3AED;
+  color: #FFFFFF;
+}
+
+.scorecard-rank-badge.rank-b {
+  background: #C06BF0;
+  color: #0A090D !important;
+  font-weight: 800;
+}
+
+.scorecard-rank-badge.rank-c {
+  background: var(--paper-dim);
+  color: var(--ink);
+}
+
+.scorecard-rank-badge.rank-d {
+  background: #FF5C5C;
+  color: #0A090D !important;
+}
+
+.scorecard-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+}
+
+.scorecard-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--ink-soft);
+}
+
+.scorecard-row.scorecard-total-row {
+  border-top: 1.5px solid var(--ink);
+  padding-top: 8px;
+  margin-top: 4px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.scorecard-val-points {
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.scorecard-total-points {
+  font-family: 'Anton', sans-serif;
+  font-size: 24px;
+  letter-spacing: 0.02em;
+  color: var(--purple);
+}
+
 /* ══════════ INPUT COMMAND BAR ══════════ */
 .command-deck {
   padding: 16px 20px;

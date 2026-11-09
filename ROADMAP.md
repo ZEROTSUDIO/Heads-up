@@ -60,11 +60,11 @@ A lightweight browser-based 20-questions game where the player asks yes/no quest
 - [x] Live telemetry summary counters (`RECORDED`, `YES`, `NO`, `SOMETIMES`)
 - [x] Seamless view switching (`INQUIRY FEED` vs `EVIDENCE DOSSIER`) with persistent command bar
 
-### Phase 3.2: Arcade Scoring, Ranks & Win Streaks
-- [ ] Dynamic scoring formula: Base score (1000) minus question penalties plus time bonuses
-- [ ] Retro arcade Rank system (**RANK S**, **A**, **B**, **C**) displayed on victory card
-- [ ] Win streak and best streak tracking persisted in `localStorage`
-- [ ] Score display in top header telemetry bar
+### Phase 3.2: Per-Session Arcade Scoring & Performance Ranks
+- [x] Dynamic scoring formula: Base clear bonus (1000) + Inquiry efficiency bonus (remaining questions * 50) + Speed bonus (elapsed time)
+- [x] Retro arcade Rank system (**RANK S**, **A**, **B**, **C**, **D**) displayed on end-game card
+- [x] Detailed session breakdown scorecard (Inquiries used, Time elapsed, Efficiency bonus, Speed bonus, Final score)
+- [x] Lightweight & self-contained per round (persistent streaks/records deferred to future phases as requested)
 
 ### Phase 3.3: Satellite Intel / AI Cryptic Clue System
 - [ ] "REQUEST INTEL" button (unlocks after question 8 or costs 2 question slots)

@@ -41,6 +41,7 @@
   let guessMode = false;
   let activeCategory = null;
   let sfxEnabled = true;
+  let roundStartTime = Date.now();
 
   // Dossier & View State
   let activeConsoleTab = "chat";
@@ -440,6 +441,55 @@
   }
 
   // ============ GAME LOOP ============
+  function calculateScore(won, questionsUsed, elapsedSec) {
+    if (!won) {
+      const consolation = questionsUsed * 10;
+      return {
+        rank: "D",
+        rankLabel: "UNRESOLVED",
+        baseBonus: 0,
+        efficiencyBonus: 0,
+        speedBonus: 0,
+        totalScore: consolation,
+        questionsUsed,
+        elapsedSec
+      };
+    }
+
+    const baseBonus = 1000;
+    const remainingQuestions = Math.max(0, MAX_QUESTIONS - questionsUsed);
+    const efficiencyBonus = remainingQuestions * 50;
+
+    // Speed bonus: up to 300 points if finished under 2 minutes (120s)
+    const speedBonus = Math.max(0, Math.round(Math.max(0, 120 - elapsedSec) * 2.5));
+    const totalScore = baseBonus + efficiencyBonus + speedBonus;
+
+    let rank = "C";
+    let rankLabel = "PHOTO FINISH";
+
+    if (questionsUsed <= 5) {
+      rank = "S";
+      rankLabel = "MASTER SLEUTH";
+    } else if (questionsUsed <= 10) {
+      rank = "A";
+      rankLabel = "SHARP DETECTIVE";
+    } else if (questionsUsed <= 15) {
+      rank = "B";
+      rankLabel = "FIELD OPERATIVE";
+    }
+
+    return {
+      rank,
+      rankLabel,
+      baseBonus,
+      efficiencyBonus,
+      speedBonus,
+      totalScore,
+      questionsUsed,
+      elapsedSec
+    };
+  }
+
   function startRound(name, silent = false) {
     const list = categories[name];
     if (!list || list.length === 0) return;
@@ -451,6 +501,7 @@
     questionCount = 0;
     gameOver = false;
     activeCategory = name;
+    roundStartTime = Date.now();
 
     // Reset Dossier state
     dossierFacts = { yes: [], no: [], sometimes: [], unsure: [] };
@@ -481,6 +532,9 @@
     setGuessMode(false);
     updateTracker();
 
+    const elapsedSec = Math.max(1, Math.round((Date.now() - roundStartTime) / 1000));
+    const scoreData = calculateScore(won, questionCount, elapsedSec);
+
     if (won) {
       playSfx("win");
       avatar.setState("win");
@@ -505,6 +559,50 @@
       <div class="result-secret-reveal">
         SECRET: <strong>${secret.toUpperCase()}</strong> (${secretCategory.toUpperCase()})
       </div>
+
+      <!-- Performance Scorecard -->
+      <div class="scorecard-wrap">
+        <div class="scorecard-header">
+          <span class="scorecard-title">SESSION EVALUATION</span>
+          <div class="scorecard-rank-badge rank-${scoreData.rank.toLowerCase()}">
+            RANK ${scoreData.rank} // ${scoreData.rankLabel}
+          </div>
+        </div>
+        <div class="scorecard-grid">
+          <div class="scorecard-row">
+            <span>INQUIRIES USED:</span>
+            <span class="scorecard-val-points">${scoreData.questionsUsed} / ${MAX_QUESTIONS}</span>
+          </div>
+          <div class="scorecard-row">
+            <span>TIME ELAPSED:</span>
+            <span class="scorecard-val-points">${scoreData.elapsedSec}s</span>
+          </div>
+          ${won ? `
+          <div class="scorecard-row">
+            <span>BASE CLEAR BONUS:</span>
+            <span class="scorecard-val-points">+${scoreData.baseBonus} PTS</span>
+          </div>
+          <div class="scorecard-row">
+            <span>EFFICIENCY BONUS (${MAX_QUESTIONS - scoreData.questionsUsed} REMAINING):</span>
+            <span class="scorecard-val-points">+${scoreData.efficiencyBonus} PTS</span>
+          </div>
+          <div class="scorecard-row">
+            <span>SPEED BONUS:</span>
+            <span class="scorecard-val-points">+${scoreData.speedBonus} PTS</span>
+          </div>
+          ` : `
+          <div class="scorecard-row">
+            <span>PARTICIPATION CONSOLATION:</span>
+            <span class="scorecard-val-points">+${scoreData.totalScore} PTS</span>
+          </div>
+          `}
+          <div class="scorecard-row scorecard-total-row">
+            <span>FINAL SCORE:</span>
+            <span class="scorecard-total-points">${scoreData.totalScore.toLocaleString()} PTS</span>
+          </div>
+        </div>
+      </div>
+
       <button id="playAgainBtn" class="header-btn btn-active-purple" style="padding: 12px 24px; font-size: 13px;">
         START NEXT ROUND →
       </button>
