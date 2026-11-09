@@ -192,8 +192,8 @@ class OracleAvatar {
 
     if (!this.faceEl) return;
 
-    // Reset base classes
-    this.faceEl.className = `oracle-svg state-${stateName}`;
+    // Reset base classes (setAttribute required for SVGElement)
+    this.faceEl.setAttribute("class", `oracle-svg state-${stateName}`);
 
     // Update Telemetry Display
     const { answer, confidence, latencyMs } = details;

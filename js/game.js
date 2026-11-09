@@ -324,11 +324,11 @@
   }
 
   // ============ GAME LOOP ============
-  function startRound(name) {
+  function startRound(name, silent = false) {
     const list = categories[name];
     if (!list || list.length === 0) return;
 
-    playSfx("click");
+    if (!silent) playSfx("click");
     const index = Math.floor(Math.random() * list.length);
     secret = list[index];
     secretCategory = name;
@@ -339,7 +339,11 @@
     chatFeed.innerHTML = "";
     addBubble(`PROTOCOL ENGAGED: Target category "${name.toUpperCase()}". The secret identity has been mounted to your forehead. Ask yes/no questions, or press "GUESS" when ready.`, "system");
 
-    if (activeSecretBadge) activeSecretBadge.textContent = "?? [CLASSIFIED] ??";
+    if (activeSecretBadge) {
+      activeSecretBadge.textContent = "?? [CLASSIFIED] ??";
+      activeSecretBadge.style.background = "var(--paper-dim)";
+      activeSecretBadge.style.color = "var(--ink)";
+    }
     if (secretCategoryLabel) secretCategoryLabel.textContent = `CATEGORY: ${name.toUpperCase()}`;
 
     setActiveCategoryChip(name);
@@ -718,9 +722,7 @@
     avatar = new OracleAvatar("oracleAvatarContainer");
     loadSettings();
     bindEvents();
-    setInputEnabled(false);
-    updateTracker();
-    addBubble("INITIALIZATION COMPLETE // Select a category above to mount a secret identity and commence interrogation.", "system");
+    startRound("celebrities", true);
   }
 
   document.addEventListener("DOMContentLoaded", initGame);
