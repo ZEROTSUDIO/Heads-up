@@ -9,31 +9,136 @@
   // ============ CONSTANTS & DATA ============
   const MAX_QUESTIONS = 20;
 
-  const categories = {
-    celebrities: [
-      "Taylor Swift", "Keanu Reeves", "Beyoncé", "Tom Hanks", "Oprah Winfrey",
-      "Cristiano Ronaldo", "Albert Einstein", "Leonardo DiCaprio", "Lady Gaga", "Elon Musk"
-    ],
-    animals: [
-      "elephant", "penguin", "giraffe", "octopus", "kangaroo",
-      "dolphin", "chameleon", "tiger", "sloth", "flamingo"
-    ],
-    countries: [
-      "Japan", "Brazil", "Indonesia", "Egypt", "Canada",
-      "Iceland", "Australia", "France", "Mexico", "Italy"
-    ],
-    food: [
-      "pizza", "sushi", "nasi goreng", "tacos", "ramen",
-      "croissant", "guacamole", "hamburger", "spaghetti", "cheesecake"
-    ],
-    objects: [
-      "umbrella", "bicycle", "telescope", "refrigerator", "guitar",
-      "compass", "sunglasses", "microwave", "typewriter", "skateboard"
-    ]
+  // Bundled fallback registry in case data/words.json is unavailable (e.g. file:// CORS restrictions)
+  const DEFAULT_WORDS_REGISTRY = {
+    celebrities: {
+      id: "celebrities",
+      name: "CELEBRITIES",
+      tag: "ICONS & FIGURES",
+      icon: "🎭",
+      description: "Famous actors, musicians, thinkers & athletes.",
+      items: [
+        { name: "Taylor Swift", difficulty: "easy", aliases: ["Taylor", "Swift", "T-Swift"], type: "real_person", hints: ["Global pop megastar known for The Eras Tour"] },
+        { name: "Keanu Reeves", difficulty: "easy", aliases: ["Keanu", "John Wick", "Neo"], type: "real_person", hints: ["Beloved Hollywood actor renowned for The Matrix and John Wick"] },
+        { name: "Beyoncé", difficulty: "easy", aliases: ["Beyonce", "Queen Bey", "Beyonce Knowles"], type: "real_person", hints: ["Grammy-record-breaking cultural icon and vocalist"] },
+        { name: "Tom Hanks", difficulty: "easy", aliases: ["Hanks", "Forrest Gump"], type: "real_person", hints: ["Two-time Academy Award winner known as America's dad"] },
+        { name: "Oprah Winfrey", difficulty: "easy", aliases: ["Oprah", "Winfrey"], type: "real_person", hints: ["Legendary talk show host, media mogul, and philanthropist"] },
+        { name: "Cristiano Ronaldo", difficulty: "easy", aliases: ["Ronaldo", "CR7"], type: "real_person", hints: ["Portuguese football legend with multiple Ballon d'Or trophies"] },
+        { name: "Albert Einstein", difficulty: "normal", aliases: ["Einstein"], type: "real_person", hints: ["Nobel laureate physicist who developed the theory of relativity"] },
+        { name: "Leonardo DiCaprio", difficulty: "normal", aliases: ["DiCaprio", "Leo DiCaprio"], type: "real_person", hints: ["Oscar-winning actor renowned for Titanic and Inception"] },
+        { name: "Lady Gaga", difficulty: "normal", aliases: ["Gaga", "Stefani Germanotta"], type: "real_person", hints: ["Avant-garde pop artist and Oscar-winning actress"] },
+        { name: "Elon Musk", difficulty: "normal", aliases: ["Musk"], type: "real_person", hints: ["Tech entrepreneur leading SpaceX and Tesla"] },
+        { name: "Marie Curie", difficulty: "hard", aliases: ["Curie", "Madame Curie"], type: "real_person", hints: ["First person to win two Nobel Prizes in physics and chemistry"] },
+        { name: "William Shakespeare", difficulty: "normal", aliases: ["Shakespeare", "The Bard"], type: "real_person", hints: ["English playwright and poet widely regarded as the greatest dramatist"] },
+        { name: "Lionel Messi", difficulty: "easy", aliases: ["Messi", "Leo Messi", "La Pulga"], type: "real_person", hints: ["World Cup champion footballer from Argentina"] },
+        { name: "Marilyn Monroe", difficulty: "normal", aliases: ["Monroe", "Norma Jeane"], type: "real_person", hints: ["Iconic 1950s Hollywood star and cultural symbol"] },
+        { name: "Steve Jobs", difficulty: "normal", aliases: ["Jobs"], type: "real_person", hints: ["Co-founder of Apple who pioneered personal computers and smartphones"] }
+      ]
+    },
+    animals: {
+      id: "animals",
+      name: "ANIMALS",
+      tag: "FAUNA & WILDLIFE",
+      icon: "🐾",
+      description: "Wildlife, marine creatures, predators & birds.",
+      items: [
+        { name: "Elephant", difficulty: "easy", aliases: ["African elephant", "Asian elephant"], type: "living_organism", hints: ["Largest existing land mammal with a long trunk and tusks"] },
+        { name: "Penguin", difficulty: "easy", aliases: ["Emperor penguin"], type: "living_organism", hints: ["Flightless aquatic bird native to the southern hemisphere"] },
+        { name: "Giraffe", difficulty: "easy", aliases: [], type: "living_organism", hints: ["Tallest living terrestrial animal known for its extremely long neck"] },
+        { name: "Octopus", difficulty: "easy", aliases: ["Octopi", "Octopuses"], type: "living_organism", hints: ["Highly intelligent eight-limbed marine mollusk capable of camouflage"] },
+        { name: "Kangaroo", difficulty: "easy", aliases: ["Roo"], type: "living_organism", hints: ["Hopping marsupial with a front pouch indigenous to Australia"] },
+        { name: "Dolphin", difficulty: "easy", aliases: ["Bottlenose dolphin"], type: "living_organism", hints: ["Playful aquatic cetacean known for echolocation"] },
+        { name: "Chameleon", difficulty: "normal", aliases: [], type: "living_organism", hints: ["Specialized lizard capable of changing skin pigments"] },
+        { name: "Tiger", difficulty: "easy", aliases: ["Bengal tiger", "Siberian tiger"], type: "living_organism", hints: ["Apex predator and largest living cat species with orange and black stripes"] },
+        { name: "Sloth", difficulty: "normal", aliases: ["Three-toed sloth"], type: "living_organism", hints: ["Slow-moving arboreal mammal native to Central and South America"] },
+        { name: "Flamingo", difficulty: "normal", aliases: [], type: "living_organism", hints: ["Wading bird recognizable by pink plumage and one-legged stance"] },
+        { name: "Platypus", difficulty: "hard", aliases: ["Duck-billed platypus"], type: "living_organism", hints: ["Semi-aquatic egg-laying mammal with a duck-like bill and beaver tail"] },
+        { name: "Komodo Dragon", difficulty: "hard", aliases: ["Komodo"], type: "living_organism", hints: ["Largest living lizard species endemic to Indonesian islands"] },
+        { name: "Blue Whale", difficulty: "normal", aliases: [], type: "living_organism", hints: ["Largest animal ever known to have lived on Earth"] },
+        { name: "Axolotl", difficulty: "hard", aliases: ["Mexican walking fish"], type: "living_organism", hints: ["Neotenic salamander known for limb regeneration and feathery external gills"] },
+        { name: "Honey Badger", difficulty: "hard", aliases: ["Ratel"], type: "living_organism", hints: ["Notoriously fearless carnivorous mammal known for thick defensive skin"] }
+      ]
+    },
+    countries: {
+      id: "countries",
+      name: "COUNTRIES",
+      tag: "GEOGRAPHY",
+      icon: "🌍",
+      description: "Nations, travel destinations & global territories.",
+      items: [
+        { name: "Japan", difficulty: "easy", aliases: ["Nippon", "Nihon"], type: "geography", hints: ["East Asian island nation celebrated for cherry blossoms, Tokyo, and high-speed rail"] },
+        { name: "Brazil", difficulty: "easy", aliases: ["Brasil"], type: "geography", hints: ["Largest nation in South America, home to the Amazon Rainforest and Carnival"] },
+        { name: "Indonesia", difficulty: "normal", aliases: [], type: "geography", hints: ["World's largest archipelago state spanning across Southeast Asia and Oceania"] },
+        { name: "Egypt", difficulty: "easy", aliases: [], type: "geography", hints: ["Northeast African country famed for the Nile and ancient pyramids"] },
+        { name: "Canada", difficulty: "easy", aliases: [], type: "geography", hints: ["Second-largest country by total area, renowned for maple syrup and Niagara Falls"] },
+        { name: "Iceland", difficulty: "normal", aliases: [], type: "geography", hints: ["Nordic island nation defined by volcanoes, geysers, hot springs, and glaciers"] },
+        { name: "Australia", difficulty: "easy", aliases: ["Aussie"], type: "geography", hints: ["Continent country surrounded by the Indian and Pacific Oceans"] },
+        { name: "France", difficulty: "easy", aliases: [], type: "geography", hints: ["Western European country home to Paris, the Eiffel Tower, and fine wine"] },
+        { name: "Mexico", difficulty: "easy", aliases: [], type: "geography", hints: ["North American nation known for rich culinary traditions and Mayan ruins"] },
+        { name: "Italy", difficulty: "easy", aliases: ["Italia"], type: "geography", hints: ["Boot-shaped Mediterranean country renowned for Rome, Venice, and Renaissance art"] },
+        { name: "Madagascar", difficulty: "normal", aliases: [], type: "geography", hints: ["Island country off the coast of East Africa famous for endemic lemurs and baobabs"] },
+        { name: "Switzerland", difficulty: "normal", aliases: ["Swiss"], type: "geography", hints: ["Mountainous Central European country famous for the Alps, watches, and chocolate"] },
+        { name: "South Korea", difficulty: "normal", aliases: ["Korea", "ROK"], type: "geography", hints: ["East Asian nation leader in technology, cinema, and K-pop culture"] },
+        { name: "Peru", difficulty: "normal", aliases: [], type: "geography", hints: ["South American country home to Machu Picchu and the ancient Inca Empire"] },
+        { name: "Norway", difficulty: "normal", aliases: [], type: "geography", hints: ["Scandinavian nation famous for dramatic coastal fjords and northern lights"] }
+      ]
+    },
+    food: {
+      id: "food",
+      name: "FOOD & DRINK",
+      tag: "CUISINE",
+      icon: "🍕",
+      description: "Popular worldwide dishes, ingredients, treats & snacks.",
+      items: [
+        { name: "Pizza", difficulty: "easy", aliases: ["Pepperoni pizza", "Cheese pizza"], type: "inanimate_object", hints: ["Italian dish featuring flat baked dough topped with tomato sauce and cheese"] },
+        { name: "Sushi", difficulty: "easy", aliases: ["Nigiri", "Maki"], type: "inanimate_object", hints: ["Japanese staple consisting of prepared vinegared rice and raw fish"] },
+        { name: "Nasi Goreng", difficulty: "normal", aliases: ["Indonesian fried rice", "Fried rice"], type: "inanimate_object", hints: ["Indonesian stir-fried rice seasoned with sweet soy sauce and shallots"] },
+        { name: "Tacos", difficulty: "easy", aliases: ["Taco"], type: "inanimate_object", hints: ["Traditional Mexican dish made of folded corn or wheat tortillas with savory fillings"] },
+        { name: "Ramen", difficulty: "easy", aliases: ["Japanese ramen"], type: "inanimate_object", hints: ["Japanese wheat noodle soup served in rich meat or fish broth"] },
+        { name: "Croissant", difficulty: "normal", aliases: [], type: "inanimate_object", hints: ["Flaky, buttery crescent-shaped pastry originating in Austrian and French baking"] },
+        { name: "Guacamole", difficulty: "normal", aliases: ["Guac"], type: "inanimate_object", hints: ["Mashed avocado-based dip seasoned with lime juice, salt, and cilantro"] },
+        { name: "Hamburger", difficulty: "easy", aliases: ["Burger", "Cheeseburger"], type: "inanimate_object", hints: ["Iconic sandwich consisting of a cooked patty placed inside a sliced bun"] },
+        { name: "Spaghetti", difficulty: "easy", aliases: ["Spaghetti bolognese", "Pasta"], type: "inanimate_object", hints: ["Long, thin cylindrical pasta of Italian origin"] },
+        { name: "Cheesecake", difficulty: "normal", aliases: [], type: "inanimate_object", hints: ["Sweet dessert consisting of soft fresh cheese on a crushed cookie crust"] },
+        { name: "Paella", difficulty: "normal", aliases: ["Spanish paella"], type: "inanimate_object", hints: ["Classic Spanish rice dish originating from Valencia seasoned with saffron"] },
+        { name: "Baklava", difficulty: "hard", aliases: [], type: "inanimate_object", hints: ["Layered pastry dessert made of filo pastry filled with chopped nuts and sweetened syrup"] },
+        { name: "Dim Sum", difficulty: "normal", aliases: ["Dumplings"], type: "inanimate_object", hints: ["Cantonese meal consisting of small dishes served in bamboo steamer baskets"] },
+        { name: "Poutine", difficulty: "hard", aliases: [], type: "inanimate_object", hints: ["Quebec dish made of french fries and cheese curds topped with brown gravy"] },
+        { name: "Kimchi", difficulty: "normal", aliases: [], type: "inanimate_object", hints: ["Traditional Korean salted and fermented cabbage and radishes seasoned with chili"] }
+      ]
+    },
+    objects: {
+      id: "objects",
+      name: "OBJECTS",
+      tag: "ITEMS & TOOLS",
+      icon: "📦",
+      description: "Household items, tools, instruments & gadgets.",
+      items: [
+        { name: "Umbrella", difficulty: "easy", aliases: ["Parasol"], type: "inanimate_object", hints: ["Collapsible canopy designed to shield an individual from rain or sunlight"] },
+        { name: "Bicycle", difficulty: "easy", aliases: ["Bike"], type: "inanimate_object", hints: ["Human-powered two-wheeled steerable vehicle propelled by foot pedals"] },
+        { name: "Telescope", difficulty: "normal", aliases: [], type: "inanimate_object", hints: ["Optical instrument used to observe distant celestial bodies"] },
+        { name: "Refrigerator", difficulty: "easy", aliases: ["Fridge"], type: "inanimate_object", hints: ["Household appliance used to preserve food and beverages at cool temperatures"] },
+        { name: "Guitar", difficulty: "easy", aliases: ["Acoustic guitar", "Electric guitar"], type: "inanimate_object", hints: ["Stringed musical instrument with a fretted neck typically played with a pick or fingers"] },
+        { name: "Compass", difficulty: "normal", aliases: ["Magnetic compass"], type: "inanimate_object", hints: ["Navigational device pointing toward magnetic north"] },
+        { name: "Sunglasses", difficulty: "easy", aliases: ["Shades"], type: "inanimate_object", hints: ["Protective eyewear designed to shield eyes from bright sunlight"] },
+        { name: "Microwave", difficulty: "easy", aliases: ["Microwave oven"], type: "inanimate_object", hints: ["Kitchen appliance that cooks or reheats food using dielectric heating"] },
+        { name: "Typewriter", difficulty: "normal", aliases: [], type: "inanimate_object", hints: ["Mechanical or electromechanical machine for typing characters on paper"] },
+        { name: "Skateboard", difficulty: "easy", aliases: ["Skate"], type: "inanimate_object", hints: ["Narrow board mounted atop four polyurethane wheels used for gliding and tricks"] },
+        { name: "Hourglass", difficulty: "normal", aliases: ["Sand timer"], type: "inanimate_object", hints: ["Mechanical timer measuring the passage of time through falling grains of sand"] },
+        { name: "Drone", difficulty: "normal", aliases: ["Quadcopter", "UAV"], type: "inanimate_object", hints: ["Unmanned aerial vehicle controlled remotely or autonomously"] },
+        { name: "Stethoscope", difficulty: "hard", aliases: [], type: "inanimate_object", hints: ["Acoustic medical device used to listen to internal heart and lung sounds"] },
+        { name: "Vinyl Record Player", difficulty: "hard", aliases: ["Record player", "Turntable", "Phonograph"], type: "inanimate_object", hints: ["Analog sound reproduction machine that tracks audio grooves on spinning vinyl discs"] },
+        { name: "Hoverboard", difficulty: "normal", aliases: ["Self-balancing scooter"], type: "inanimate_object", hints: ["Self-balancing two-wheeled motorized personal transport board"] }
+      ]
+    }
   };
+
+  // Active word registry (loaded from data/words.json or fallback)
+  let categoriesRegistry = DEFAULT_WORDS_REGISTRY;
 
   // ============ STATE ============
   let secret = null;
+  let currentSecretItem = null;
   let secretCategory = null;
   let questionCount = 0;
   let gameOver = false;
@@ -43,6 +148,7 @@
   let sfxEnabled = true;
   let roundStartTime = Date.now();
   let clueUsed = false;
+  let sessionPlayedSecrets = [];
 
   // Dossier & View State
   let activeConsoleTab = "chat";
@@ -250,7 +356,17 @@
     return matrix[b.length][a.length];
   }
 
-  function isCorrectGuess(guess, target) {
+  function isCorrectGuess(guess, target, aliases = []) {
+    if (checkSingleMatch(guess, target)) return true;
+    if (Array.isArray(aliases)) {
+      for (const alias of aliases) {
+        if (checkSingleMatch(guess, alias)) return true;
+      }
+    }
+    return false;
+  }
+
+  function checkSingleMatch(guess, target) {
     const g = cleanString(guess);
     const a = cleanString(target);
     if (!g || !a) return false;
@@ -576,6 +692,7 @@
 
   function showStandbyScreen() {
     secret = null;
+    currentSecretItem = null;
     secretCategory = null;
     gameOver = true;
     setInputEnabled(false);
@@ -614,24 +731,35 @@
     avatar.setState("idle");
   }
 
-  function startRound(name, silent = false) {
-    let selectedCat = name;
+  async function startRound(name, silent = false) {
+    let selectedCat = name || "random";
+    const catKeys = Object.keys(categoriesRegistry);
+
     if (selectedCat === "random") {
-      const keys = Object.keys(categories);
-      selectedCat = keys[Math.floor(Math.random() * keys.length)];
+      selectedCat = catKeys[Math.floor(Math.random() * catKeys.length)];
     }
 
-    const list = categories[selectedCat];
-    if (!list || list.length === 0) return;
-
     if (!silent) playSfx("start");
-    const index = Math.floor(Math.random() * list.length);
-    secret = list[index];
-    secretCategory = selectedCat;
+    closeDeckModal();
+
+    // Prepare temporary calibration loading state
     questionCount = 0;
     gameOver = false;
     activeCategory = selectedCat;
     roundStartTime = Date.now();
+    setInputEnabled(false);
+    setGuessMode(false);
+    updateTracker();
+    avatar.setState("thinking");
+
+    if (activeSecretBadge) {
+      activeSecretBadge.textContent = "?? [SYNTHESIZING SECRET...] ??";
+      activeSecretBadge.style.background = "#38225C";
+      activeSecretBadge.style.color = "#FFFFFF";
+    }
+    if (secretCategoryLabel) secretCategoryLabel.textContent = `CATEGORY: ${selectedCat.toUpperCase()}`;
+    if (headerActiveCategory) headerActiveCategory.textContent = "SYNTHESIZING...";
+    if (activeDeckNamePill) activeDeckNamePill.textContent = selectedCat.toUpperCase();
 
     // Reset Dossier state
     dossierFacts = { yes: [], no: [], sometimes: [], unsure: [] };
@@ -639,14 +767,56 @@
     setConsoleTab("chat");
 
     chatFeed.innerHTML = "";
-    addBubble(`PROTOCOL ENGAGED: Target category "${selectedCat.toUpperCase()}". The secret identity has been mounted to your virtual forehead. Ask yes/no questions, or press "GUESS" when ready.`, "system");
+    const synthBubble = addBubble(`CALIBRATING ORACLE: Conjuring a unique secret identity for category "${selectedCat.toUpperCase()}"...`, "thinking");
+
+    let secretItem = null;
+    let isAiGenerated = false;
+
+    try {
+      secretItem = await generateAISecret(selectedCat, "normal", sessionPlayedSecrets);
+      isAiGenerated = true;
+    } catch (err) {
+      console.warn("AI Dynamic secret generation unavailable or offline, falling back to local registry:", err.message);
+      const catData = categoriesRegistry[selectedCat] || categoriesRegistry.objects;
+      if (catData && catData.items && catData.items.length > 0) {
+        const available = catData.items.filter(item => {
+          const n = typeof item === "string" ? item : item.name;
+          return !sessionPlayedSecrets.includes(n);
+        });
+        const pool = available.length > 0 ? available : catData.items;
+        const chosen = pool[Math.floor(Math.random() * pool.length)];
+        secretItem = typeof chosen === "string"
+          ? { name: chosen, aliases: [], difficulty: "normal", type: "item", hints: [], category: selectedCat }
+          : { ...chosen, category: selectedCat };
+      }
+    }
+
+    synthBubble.remove();
+
+    if (!secretItem) {
+      addBubble("ERROR: Unable to initialize secret identity. Please check your API key in Settings.", "system");
+      showStandbyScreen();
+      return;
+    }
+
+    secret = secretItem.name;
+    currentSecretItem = secretItem;
+    secretCategory = secretItem.category || selectedCat;
+    sessionPlayedSecrets.push(secret);
+
+    // Announce protocol engaged
+    if (isAiGenerated) {
+      addBubble(`PROTOCOL ENGAGED: Target category "${secretCategory.toUpperCase()}". ORACLE-ZERO has dynamically synthesized a fresh secret to your virtual forehead (${secretItem.latencyMs}ms). Ask yes/no questions, or press "GUESS" when ready.`, "system");
+    } else {
+      addBubble(`PROTOCOL ENGAGED: Target category "${secretCategory.toUpperCase()}". Secret identity mounted from local archive. Ask yes/no questions, or press "GUESS" when ready.`, "system");
+    }
 
     if (activeSecretBadge) {
       activeSecretBadge.textContent = "?? [CLASSIFIED] ??";
       activeSecretBadge.style.background = "var(--paper-dim)";
       activeSecretBadge.style.color = "var(--ink)";
     }
-    if (secretCategoryLabel) secretCategoryLabel.textContent = `CATEGORY: ${selectedCat.toUpperCase()}`;
+    if (secretCategoryLabel) secretCategoryLabel.textContent = `CATEGORY: ${secretCategory.toUpperCase()}`;
     if (startPlayBtn) startPlayBtn.innerHTML = `<span>🗂 NEW DECK</span>`;
 
     setActiveCategoryChip(selectedCat);
@@ -656,7 +826,6 @@
     updateIntelButtonState();
     updateTracker();
     avatar.setState("idle");
-    closeDeckModal();
     gameInput.focus();
   }
 
@@ -692,6 +861,7 @@
       </div>
       <div class="result-secret-reveal">
         SECRET: <strong>${secret.toUpperCase()}</strong> (${secretCategory.toUpperCase()})
+        ${currentSecretItem?.difficulty ? `<span class="badge-hesitant" style="font-size: 10px; margin-left: 8px;">${currentSecretItem.difficulty.toUpperCase()}</span>` : ""}
       </div>
 
       <!-- Performance Scorecard -->
@@ -836,7 +1006,8 @@
     setGuessMode(false);
     addBubble(guess, "user", "guess-bubble");
 
-    if (isCorrectGuess(guess, secret)) {
+    const aliases = currentSecretItem?.aliases || [];
+    if (isCorrectGuess(guess, secret, aliases)) {
       endGame(true);
     } else {
       playSfx("no");
@@ -1033,6 +1204,30 @@
       });
     });
 
+    // Custom Dynamic Topic selection
+    const customTopicInput = document.getElementById("customTopicInput");
+    const customTopicBtn = document.getElementById("customTopicBtn");
+
+    function handleCustomTopicSubmit() {
+      if (!customTopicInput) return;
+      const topic = customTopicInput.value.trim();
+      if (!topic) return;
+      customTopicInput.value = "";
+      startRound(topic);
+    }
+
+    if (customTopicBtn) {
+      customTopicBtn.addEventListener("click", handleCustomTopicSubmit);
+    }
+    if (customTopicInput) {
+      customTopicInput.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          handleCustomTopicSubmit();
+        }
+      });
+    }
+
     // Sound quick toggle in header
     if (soundToggleBtn) {
       soundToggleBtn.addEventListener("click", () => {
@@ -1193,10 +1388,29 @@
     });
   }
 
+  // ============ MODULAR WORD REGISTRY (PHASE 4.1) ============
+  async function loadWordRegistry() {
+    try {
+      const res = await fetch("data/words.json");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data && data.categories && Object.keys(data.categories).length > 0) {
+        categoriesRegistry = data.categories;
+        console.log("✓ Modular word pool loaded from data/words.json:", Object.keys(categoriesRegistry).length, "categories");
+        return;
+      }
+      throw new Error("Invalid structure in data/words.json");
+    } catch (err) {
+      console.warn("Using bundled offline word registry fallback:", err.message);
+      categoriesRegistry = DEFAULT_WORDS_REGISTRY;
+    }
+  }
+
   // ============ INITIALIZATION ============
-  function initGame() {
+  async function initGame() {
     avatar = new OracleAvatar("oracleAvatarContainer");
     loadSettings();
+    await loadWordRegistry();
     bindEvents();
     showStandbyScreen();
   }

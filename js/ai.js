@@ -527,3 +527,190 @@ async function askAIClue(secret, secretCategory, knownFactsSummary = "") {
   const elapsedMs = Math.round(performance.now() - startTime);
   return { clue, latencyMs: elapsedMs };
 }
+
+// ============ DYNAMIC SECRET SYNTHESIZER (PHASE 4.2) ============
+function buildSecretGenerationPrompt(category, difficulty = "normal", excludeList = []) {
+  const isWildcard = !category || category === "random" || category === "wildcard";
+  const catInstruction = isWildcard
+    ? "Pick from ANY popular, fun category (e.g. movies, pop culture, animals, landmarks, video games, historical figures, food, everyday objects)."
+    : `Target Category / Theme: "${category}". Pick an entity that clearly belongs to this theme.`;
+
+  const excludeInstruction = excludeList && excludeList.length > 0
+    ? `Do NOT choose any of these recently played secrets: [${excludeList.slice(-15).join(", ")}].`
+    : "";
+
+  return `You are ORACLE-ZERO, the master gamekeeper in a "Guess What's on Your Head" / 20-Questions guessing party game.
+Your task: Invent/choose ONE secret entity for the player to guess.
+
+${catInstruction}
+Difficulty Tier: "${difficulty}" (easy = globally iconic household names; normal = widely known; hard = specific or niche but fair).
+${excludeInstruction}
+
+CRITICAL RULES:
+1. The entity MUST be universally verifiable and well-known. Never make up fictional entities that don't exist in popular media or the real world.
+2. It must have clear objective facts so it can be answered with yes/no questions (e.g. is it alive, is it bigger than a breadbox, is it electronic, etc.).
+3. Provide 2-5 common aliases, nicknames, or accepted shorthand answers (e.g. for "Leonardo da Vinci": ["Da Vinci", "Leonardo"]).
+4. Provide 1-2 distinct facts/hints suitable for secret keeper verification.
+
+Respond EXCLUSIVELY in a single valid JSON object. No explanation, no markdown fence.
+Example format:
+{
+  "name": "Albert Einstein",
+  "category": "${isWildcard ? "Celebrities" : category}",
+  "difficulty": "${difficulty}",
+  "aliases": ["Einstein", "Albert"],
+  "type": "real_person",
+  "hints": ["Theoretical physicist famous for E=mc^2"]
+}`;
+}
+
+function parseGeneratedSecret(rawText) {
+  let clean = (rawText || "").trim();
+  clean = clean.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+
+  try {
+    const parsed = JSON.parse(clean);
+    if (parsed.name) {
+      return {
+        name: parsed.name.trim(),
+        category: (parsed.category || "GENERAL").toUpperCase(),
+        difficulty: (parsed.difficulty || "normal").toLowerCase(),
+        aliases: Array.isArray(parsed.aliases) ? parsed.aliases.map(a => String(a).trim()) : [],
+        type: parsed.type || "entity",
+        hints: Array.isArray(parsed.hints) ? parsed.hints : [parsed.hint || ""].filter(Boolean)
+      };
+    }
+  } catch (e) {
+    const nameMatch = clean.match(/"name"\s*:\s*"([^"]+)"/i);
+    if (nameMatch) {
+      return {
+        name: nameMatch[1].trim(),
+        category: "GENERAL",
+        difficulty: "normal",
+        aliases: [],
+        type: "entity",
+        hints: []
+      };
+    }
+  }
+  throw new Error("Could not parse AI-generated secret entity.");
+}
+
+async function generateGroqSecret(category, difficulty = "normal", excludeList = []) {
+  const apiKey = document.getElementById("groqApiKey")?.value.trim() || getStorage(STORAGE_KEY_GROQ_KEY, "") || "";
+  if (!apiKey) throw new Error("No Groq API key set.");
+
+  const modelSelect = document.getElementById("groqModelSelect");
+  const model = modelSelect?.value || getStorage(STORAGE_KEY_GROQ_MODEL, "openai/gpt-oss-20b");
+  const prompt = buildSecretGenerationPrompt(category, difficulty, excludeList);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          { role: "system", content: "You generate structured secret identities for guessing games. Output only JSON." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.8,
+        response_format: { type: "json_object" },
+        max_tokens: 300
+      }),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Groq API error (${res.status}): ${err.slice(0, 100)}`);
+    }
+
+    const data = await res.json();
+    const raw = data.choices?.[0]?.message?.content;
+    return parseGeneratedSecret(raw);
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
+}
+
+async function generateGeminiSecret(category, difficulty = "normal", excludeList = []) {
+  const apiKey = document.getElementById("geminiApiKey")?.value.trim() || getStorage(STORAGE_KEY_GEMINI_KEY, "") || "";
+  if (!apiKey) throw new Error("No Gemini API key set.");
+
+  const modelSelect = document.getElementById("geminiModelSelect");
+  const model = modelSelect?.value || "gemini-3.8-flash";
+  const prompt = buildSecretGenerationPrompt(category, difficulty, excludeList);
+
+  const generateContentUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const payload = {
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+    systemInstruction: { parts: [{ text: "You generate structured secret identities for guessing games. Output only JSON." }] },
+    generationConfig: {
+      temperature: 0.85,
+      maxOutputTokens: 300,
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: "OBJECT",
+        properties: {
+          name: { type: "STRING" },
+          category: { type: "STRING" },
+          difficulty: { type: "STRING", enum: ["easy", "normal", "hard"] },
+          aliases: { type: "ARRAY", items: { type: "STRING" } },
+          type: { type: "STRING" },
+          hints: { type: "ARRAY", items: { type: "STRING" } }
+        },
+        required: ["name", "category", "aliases"]
+      }
+    }
+  };
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const res = await fetch(generateContentUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(`Gemini API error (${res.status}): ${err.slice(0, 100)}`);
+    }
+
+    const data = await res.json();
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || data.output_text;
+    return parseGeneratedSecret(raw);
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
+}
+
+async function generateAISecret(category, difficulty = "normal", excludeList = []) {
+  const providerSelect = document.getElementById("providerSelect");
+  const provider = providerSelect?.value || getStorage(STORAGE_KEY_PROVIDER, "groq");
+  const startTime = performance.now();
+
+  let secretItem;
+  if (provider === "groq") {
+    secretItem = await generateGroqSecret(category, difficulty, excludeList);
+  } else {
+    secretItem = await generateGeminiSecret(category, difficulty, excludeList);
+  }
+
+  secretItem.latencyMs = Math.round(performance.now() - startTime);
+  return secretItem;
+}

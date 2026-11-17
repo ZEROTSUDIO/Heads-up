@@ -1,0 +1,576 @@
+{
+  "$schema": "./words.schema.json",
+  "version": "1.0.0",
+  "categories": {
+    "celebrities": {
+      "id": "celebrities",
+      "name": "CELEBRITIES",
+      "tag": "ICONS & FIGURES",
+      "icon": "🎭",
+      "description": "Famous actors, musicians, thinkers & athletes.",
+      "items": [
+        {
+          "name": "Taylor Swift",
+          "difficulty": "easy",
+          "aliases": ["Taylor", "Swift", "T-Swift"],
+          "type": "real_person",
+          "hints": ["Global pop megastar known for The Eras Tour"]
+        },
+        {
+          "name": "Keanu Reeves",
+          "difficulty": "easy",
+          "aliases": ["Keanu", "John Wick", "Neo"],
+          "type": "real_person",
+          "hints": ["Beloved Hollywood actor renowned for The Matrix and John Wick"]
+        },
+        {
+          "name": "Beyoncé",
+          "difficulty": "easy",
+          "aliases": ["Beyonce", "Queen Bey", "Beyonce Knowles"],
+          "type": "real_person",
+          "hints": ["Grammy-record-breaking cultural icon and vocalist"]
+        },
+        {
+          "name": "Tom Hanks",
+          "difficulty": "easy",
+          "aliases": ["Hanks", "Forrest Gump"],
+          "type": "real_person",
+          "hints": ["Two-time Academy Award winner known as America's dad"]
+        },
+        {
+          "name": "Oprah Winfrey",
+          "difficulty": "easy",
+          "aliases": ["Oprah", "Winfrey"],
+          "type": "real_person",
+          "hints": ["Legendary talk show host, media mogul, and philanthropist"]
+        },
+        {
+          "name": "Cristiano Ronaldo",
+          "difficulty": "easy",
+          "aliases": ["Ronaldo", "CR7"],
+          "type": "real_person",
+          "hints": ["Portuguese football legend with multiple Ballon d'Or trophies"]
+        },
+        {
+          "name": "Albert Einstein",
+          "difficulty": "normal",
+          "aliases": ["Einstein"],
+          "type": "real_person",
+          "hints": ["Nobel laureate physicist who developed the theory of relativity"]
+        },
+        {
+          "name": "Leonardo DiCaprio",
+          "difficulty": "normal",
+          "aliases": ["DiCaprio", "Leo DiCaprio"],
+          "type": "real_person",
+          "hints": ["Oscar-winning actor renowned for Titanic and Inception"]
+        },
+        {
+          "name": "Lady Gaga",
+          "difficulty": "normal",
+          "aliases": ["Gaga", "Stefani Germanotta"],
+          "type": "real_person",
+          "hints": ["Avant-garde pop artist and Oscar-winning actress"]
+        },
+        {
+          "name": "Elon Musk",
+          "difficulty": "normal",
+          "aliases": ["Musk"],
+          "type": "real_person",
+          "hints": ["Tech entrepreneur leading SpaceX and Tesla"]
+        },
+        {
+          "name": "Marie Curie",
+          "difficulty": "hard",
+          "aliases": ["Curie", "Madame Curie"],
+          "type": "real_person",
+          "hints": ["First person to win two Nobel Prizes in physics and chemistry"]
+        },
+        {
+          "name": "William Shakespeare",
+          "difficulty": "normal",
+          "aliases": ["Shakespeare", "The Bard"],
+          "type": "real_person",
+          "hints": ["English playwright and poet widely regarded as the greatest dramatist"]
+        },
+        {
+          "name": "Lionel Messi",
+          "difficulty": "easy",
+          "aliases": ["Messi", "Leo Messi", "La Pulga"],
+          "type": "real_person",
+          "hints": ["World Cup champion footballer from Argentina"]
+        },
+        {
+          "name": "Marilyn Monroe",
+          "difficulty": "normal",
+          "aliases": ["Monroe", "Norma Jeane"],
+          "type": "real_person",
+          "hints": ["Iconic 1950s Hollywood star and cultural symbol"]
+        },
+        {
+          "name": "Steve Jobs",
+          "difficulty": "normal",
+          "aliases": ["Jobs"],
+          "type": "real_person",
+          "hints": ["Co-founder of Apple who pioneered personal computers and smartphones"]
+        }
+      ]
+    },
+    "animals": {
+      "id": "animals",
+      "name": "ANIMALS",
+      "tag": "FAUNA & WILDLIFE",
+      "icon": "🐾",
+      "description": "Wildlife, marine creatures, predators & birds.",
+      "items": [
+        {
+          "name": "Elephant",
+          "difficulty": "easy",
+          "aliases": ["African elephant", "Asian elephant"],
+          "type": "living_organism",
+          "hints": ["Largest existing land mammal with a long trunk and tusks"]
+        },
+        {
+          "name": "Penguin",
+          "difficulty": "easy",
+          "aliases": ["Emperor penguin"],
+          "type": "living_organism",
+          "hints": ["Flightless aquatic bird native to the southern hemisphere"]
+        },
+        {
+          "name": "Giraffe",
+          "difficulty": "easy",
+          "aliases": [],
+          "type": "living_organism",
+          "hints": ["Tallest living terrestrial animal known for its extremely long neck"]
+        },
+        {
+          "name": "Octopus",
+          "difficulty": "easy",
+          "aliases": ["Octopi", "Octopuses"],
+          "type": "living_organism",
+          "hints": ["Highly intelligent eight-limbed marine mollusk capable of camouflage"]
+        },
+        {
+          "name": "Kangaroo",
+          "difficulty": "easy",
+          "aliases": ["Roo"],
+          "type": "living_organism",
+          "hints": ["Hopping marsupial with a front pouch indigenous to Australia"]
+        },
+        {
+          "name": "Dolphin",
+          "difficulty": "easy",
+          "aliases": ["Bottlenose dolphin"],
+          "type": "living_organism",
+          "hints": ["Playful aquatic cetacean known for echolocation"]
+        },
+        {
+          "name": "Chameleon",
+          "difficulty": "normal",
+          "aliases": [],
+          "type": "living_organism",
+          "hints": ["Specialized lizard capable of changing skin pigments"]
+        },
+        {
+          "name": "Tiger",
+          "difficulty": "easy",
+          "aliases": ["Bengal tiger", "Siberian tiger"],
+          "type": "living_organism",
+          "hints": ["Apex predator and largest living cat species with orange and black stripes"]
+        },
+        {
+          "name": "Sloth",
+          "difficulty": "normal",
+          "aliases": ["Three-toed sloth"],
+          "type": "living_organism",
+          "hints": ["Slow-moving arboreal mammal native to Central and South America"]
+        },
+        {
+          "name": "Flamingo",
+          "difficulty": "normal",
+          "aliases": [],
+          "type": "living_organism",
+          "hints": ["Wading bird recognizable by pink plumage and one-legged stance"]
+        },
+        {
+          "name": "Platypus",
+          "difficulty": "hard",
+          "aliases": ["Duck-billed platypus"],
+          "type": "living_organism",
+          "hints": ["Semi-aquatic egg-laying mammal with a duck-like bill and beaver tail"]
+        },
+        {
+          "name": "Komodo Dragon",
+          "difficulty": "hard",
+          "aliases": ["Komodo"],
+          "type": "living_organism",
+          "hints": ["Largest living lizard species endemic to Indonesian islands"]
+        },
+        {
+          "name": "Blue Whale",
+          "difficulty": "normal",
+          "aliases": [],
+          "type": "living_organism",
+          "hints": ["Largest animal ever known to have lived on Earth"]
+        },
+        {
+          "name": "Axolotl",
+          "difficulty": "hard",
+          "aliases": ["Mexican walking fish"],
+          "type": "living_organism",
+          "hints": ["Neotenic salamander known for limb regeneration and feathery external gills"]
+        },
+        {
+          "name": "Honey Badger",
+          "difficulty": "hard",
+          "aliases": ["Ratel"],
+          "type": "living_organism",
+          "hints": ["Notoriously fearless carnivorous mammal known for thick defensive skin"]
+        }
+      ]
+    },
+    "countries": {
+      "id": "countries",
+      "name": "COUNTRIES",
+      "tag": "GEOGRAPHY",
+      "icon": "🌍",
+      "description": "Nations, travel destinations & global territories.",
+      "items": [
+        {
+          "name": "Japan",
+          "difficulty": "easy",
+          "aliases": ["Nippon", "Nihon"],
+          "type": "geography",
+          "hints": ["East Asian island nation celebrated for cherry blossoms, Tokyo, and high-speed rail"]
+        },
+        {
+          "name": "Brazil",
+          "difficulty": "easy",
+          "aliases": ["Brasil"],
+          "type": "geography",
+          "hints": ["Largest nation in South America, home to the Amazon Rainforest and Carnival"]
+        },
+        {
+          "name": "Indonesia",
+          "difficulty": "normal",
+          "aliases": [],
+          "type": "geography",
+          "hints": ["World's largest archipelago state spanning across Southeast Asia and Oceania"]
+        },
+        {
+          "name": "Egypt",
+          "difficulty": "easy",
+          "aliases": [],
+          "type": "geography",
+          "hints": ["Northeast African country famed for the Nile and ancient pyramids"]
+        },
+        {
+          "name": "Canada",
+          "difficulty": "easy",
+          "aliases": [],
+          "type": "geography",
+          "hints": ["Second-largest country by total area, renowned for maple syrup and Niagara Falls"]
+        },
+        {
+          "name": "Iceland",
+          "difficulty": "normal",
+          "aliases": [],
+          "type": "geography",
+          "hints": ["Nordic island nation defined by volcanoes, geysers, hot springs, and glaciers"]
+        },
+        {
+          "name": "Australia",
+          "difficulty": "easy",
+          "aliases": ["Aussie"],
+          "type": "geography",
+          "hints": ["Continent country surrounded by the Indian and Pacific Oceans"]
+        },
+        {
+          "name": "France",
+          "difficulty": "easy",
+          "aliases": [],
+          "type": "geography",
+          "hints": ["Western European country home to Paris, the Eiffel Tower, and fine wine"]
+        },
+        {
+          "name": "Mexico",
+          "difficulty": "easy",
+          "aliases": [],
+          "type": "geography",
+          "hints": ["North American nation known for rich culinary traditions and Mayan ruins"]
+        },
+        {
+          "name": "Italy",
+          "difficulty": "easy",
+          "aliases": ["Italia"],
+          "type": "geography",
+          "hints": ["Boot-shaped Mediterranean country renowned for Rome, Venice, and Renaissance art"]
+        },
+        {
+          "name": "Madagascar",
+          "difficulty": "normal",
+          "aliases": [],
+          "type": "geography",
+          "hints": ["Island country off the coast of East Africa famous for endemic lemurs and baobabs"]
+        },
+        {
+          "name": "Switzerland",
+          "difficulty": "normal",
+          "aliases": ["Swiss"],
+          "type": "geography",
+          "hints": ["Mountainous Central European country famous for the Alps, watches, and chocolate"]
+        },
+        {
+          "name": "South Korea",
+          "difficulty": "normal",
+          "aliases": ["Korea", "ROK"],
+          "type": "geography",
+          "hints": ["East Asian nation leader in technology, cinema, and K-pop culture"]
+        },
+        {
+          "name": "Peru",
+          "difficulty": "normal",
+          "aliases": [],
+          "type": "geography",
+          "hints": ["South American country home to Machu Picchu and the ancient Inca Empire"]
+        },
+        {
+          "name": "Norway",
+          "difficulty": "normal",
+          "aliases": [],
+          "type": "geography",
+          "hints": ["Scandinavian nation famous for dramatic coastal fjords and northern lights"]
+        }
+      ]
+    },
+    "food": {
+      "id": "food",
+      "name": "FOOD & DRINK",
+      "tag": "CUISINE",
+      "icon": "🍕",
+      "description": "Popular worldwide dishes, ingredients, treats & snacks.",
+      "items": [
+        {
+          "name": "Pizza",
+          "difficulty": "easy",
+          "aliases": ["Pepperoni pizza", "Cheese pizza"],
+          "type": "inanimate_object",
+          "hints": ["Italian dish featuring flat baked dough topped with tomato sauce and cheese"]
+        },
+        {
+          "name": "Sushi",
+          "difficulty": "easy",
+          "aliases": ["Nigiri", "Maki"],
+          "type": "inanimate_object",
+          "hints": ["Japanese staple consisting of prepared vinegared rice and raw fish"]
+        },
+        {
+          "name": "Nasi Goreng",
+          "difficulty": "normal",
+          "aliases": ["Indonesian fried rice", "Fried rice"],
+          "type": "inanimate_object",
+          "hints": ["Indonesian stir-fried rice seasoned with sweet soy sauce and shallots"]
+        },
+        {
+          "name": "Tacos",
+          "difficulty": "easy",
+          "aliases": ["Taco"],
+          "type": "inanimate_object",
+          "hints": ["Traditional Mexican dish made of folded corn or wheat tortillas with savory fillings"]
+        },
+        {
+          "name": "Ramen",
+          "difficulty": "easy",
+          "aliases": ["Japanese ramen"],
+          "type": "inanimate_object",
+          "hints": ["Japanese wheat noodle soup served in rich meat or fish broth"]
+        },
+        {
+          "name": "Croissant",
+          "difficulty": "normal",
+          "aliases": [],
+          "type": "inanimate_object",
+          "hints": ["Flaky, buttery crescent-shaped pastry originating in Austrian and French baking"]
+        },
+        {
+          "name": "Guacamole",
+          "difficulty": "normal",
+          "aliases": ["Guac"],
+          "type": "inanimate_object",
+          "hints": ["Mashed avocado-based dip seasoned with lime juice, salt, and cilantro"]
+        },
+        {
+          "name": "Hamburger",
+          "difficulty": "easy",
+          "aliases": ["Burger", "Cheeseburger"],
+          "type": "inanimate_object",
+          "hints": ["Iconic sandwich consisting of a cooked patty placed inside a sliced bun"]
+        },
+        {
+          "name": "Spaghetti",
+          "difficulty": "easy",
+          "aliases": ["Spaghetti bolognese", "Pasta"],
+          "type": "inanimate_object",
+          "hints": ["Long, thin cylindrical pasta of Italian origin"]
+        },
+        {
+          "name": "Cheesecake",
+          "difficulty": "normal",
+          "aliases": [],
+          "type": "inanimate_object",
+          "hints": ["Sweet dessert consisting of soft fresh cheese on a crushed cookie crust"]
+        },
+        {
+          "name": "Paella",
+          "difficulty": "normal",
+          "aliases": ["Spanish paella"],
+          "type": "inanimate_object",
+          "hints": ["Classic Spanish rice dish originating from Valencia seasoned with saffron"]
+        },
+        {
+          "name": "Baklava",
+          "difficulty": "hard",
+          "aliases": [],
+          "type": "inanimate_object",
+          "hints": ["Layered pastry dessert made of filo pastry filled with chopped nuts and sweetened syrup"]
+        },
+        {
+          "name": "Dim Sum",
+          "difficulty": "normal",
+          "aliases": ["Dumplings"],
+          "type": "inanimate_object",
+          "hints": ["Cantonese meal consisting of small dishes served in bamboo steamer baskets"]
+        },
+        {
+          "name": "Poutine",
+          "difficulty": "hard",
+          "aliases": [],
+          "type": "inanimate_object",
+          "hints": ["Quebec dish made of french fries and cheese curds topped with brown gravy"]
+        },
+        {
+          "name": "Kimchi",
+          "difficulty": "normal",
+          "aliases": [],
+          "type": "inanimate_object",
+          "hints": ["Traditional Korean salted and fermented cabbage and radishes seasoned with chili"]
+        }
+      ]
+    },
+    "objects": {
+      "id": "objects",
+      "name": "OBJECTS",
+      "tag": "ITEMS & TOOLS",
+      "icon": "📦",
+      "description": "Household items, tools, instruments & gadgets.",
+      "items": [
+        {
+          "name": "Umbrella",
+          "difficulty": "easy",
+          "aliases": ["Parasol"],
+          "type": "inanimate_object",
+          "hints": ["Collapsible canopy designed to shield an individual from rain or sunlight"]
+        },
+        {
+          "name": "Bicycle",
+          "difficulty": "easy",
+          "aliases": ["Bike"],
+          "type": "inanimate_object",
+          "hints": ["Human-powered two-wheeled steerable vehicle propelled by foot pedals"]
+        },
+        {
+          "name": "Telescope",
+          "difficulty": "normal",
+          "aliases": [],
+          "type": "inanimate_object",
+          "hints": ["Optical instrument used to observe distant celestial bodies"]
+        },
+        {
+          "name": "Refrigerator",
+          "difficulty": "easy",
+          "aliases": ["Fridge"],
+          "type": "inanimate_object",
+          "hints": ["Household appliance used to preserve food and beverages at cool temperatures"]
+        },
+        {
+          "name": "Guitar",
+          "difficulty": "easy",
+          "aliases": ["Acoustic guitar", "Electric guitar"],
+          "type": "inanimate_object",
+          "hints": ["Stringed musical instrument with a fretted neck typically played with a pick or fingers"]
+        },
+        {
+          "name": "Compass",
+          "difficulty": "normal",
+          "aliases": ["Magnetic compass"],
+          "type": "inanimate_object",
+          "hints": ["Navigational device pointing toward magnetic north"]
+        },
+        {
+          "name": "Sunglasses",
+          "difficulty": "easy",
+          "aliases": ["Shades"],
+          "type": "inanimate_object",
+          "hints": ["Protective eyewear designed to shield eyes from bright sunlight"]
+        },
+        {
+          "name": "Microwave",
+          "difficulty": "easy",
+          "aliases": ["Microwave oven"],
+          "type": "inanimate_object",
+          "hints": ["Kitchen appliance that cooks or reheats food using dielectric heating"]
+        },
+        {
+          "name": "Typewriter",
+          "difficulty": "normal",
+          "aliases": [],
+          "type": "inanimate_object",
+          "hints": ["Mechanical or electromechanical machine for typing characters on paper"]
+        },
+        {
+          "name": "Skateboard",
+          "difficulty": "easy",
+          "aliases": ["Skate"],
+          "type": "inanimate_object",
+          "hints": ["Narrow board mounted atop four polyurethane wheels used for gliding and tricks"]
+        },
+        {
+          "name": "Hourglass",
+          "difficulty": "normal",
+          "aliases": ["Sand timer"],
+          "type": "inanimate_object",
+          "hints": ["Mechanical timer measuring the passage of time through falling grains of sand"]
+        },
+        {
+          "name": "Drone",
+          "difficulty": "normal",
+          "aliases": ["Quadcopter", "UAV"],
+          "type": "inanimate_object",
+          "hints": ["Unmanned aerial vehicle controlled remotely or autonomously"]
+        },
+        {
+          "name": "Stethoscope",
+          "difficulty": "hard",
+          "aliases": [],
+          "type": "inanimate_object",
+          "hints": ["Acoustic medical device used to listen to internal heart and lung sounds"]
+        },
+        {
+          "name": "Vinyl Record Player",
+          "difficulty": "hard",
+          "aliases": ["Record player", "Turntable", "Phonograph"],
+          "type": "inanimate_object",
+          "hints": ["Analog sound reproduction machine that tracks audio grooves on spinning vinyl discs"]
+        },
+        {
+          "name": "Hoverboard",
+          "difficulty": "normal",
+          "aliases": ["Self-balancing scooter"],
+          "type": "inanimate_object",
+          "hints": ["Self-balancing two-wheeled motorized personal transport board"]
+        }
+      ]
+    }
+  }
+}

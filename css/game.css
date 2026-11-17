@@ -1608,6 +1608,42 @@
   line-height: 1.35;
 }
 
+/* Custom Deck Synthesis Box */
+.custom-deck-box {
+  background: #120921;
+  border: 1.5px solid #38225C;
+  box-shadow: 4px 4px 0 #0A090D;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.custom-deck-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-deck-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--purple-light);
+  text-transform: uppercase;
+}
+
+.custom-deck-row {
+  display: flex;
+  gap: 8px;
+}
+
+.custom-deck-row input {
+  flex: 1;
+}
+
 /* ══════════ RESPONSIVE ADJUSTMENTS ══════════ */
 @media (max-width: 640px) {
   .app-viewport {

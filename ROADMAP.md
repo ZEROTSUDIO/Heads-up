@@ -82,14 +82,42 @@ A lightweight browser-based 20-questions game where the player asks yes/no quest
 ## Phase 4: Content Pools & Difficulty Modes (v0.5)
 **Goal**: Expand the secret pool and introduce skill tiers.
 
-- [ ] Extract secret categories into a dedicated modular data file (`words.json`)
-- [ ] Difficulty modes: Easy (common/iconic), Normal, Hard (obscure/niche)
-- [ ] New categories: Movies, Video Games, Historical Figures, Pop Culture, Tech
-- [ ] Session history tracking to guarantee no duplicate secrets within a play session
+### Phase 4.1: Modular Word Engine & Schema (`data/words.json`)
+- [x] Externalized word dictionary into standalone schema-structured `data/words.json`
+- [x] Rich metadata per item: `name`, `difficulty` ("easy", "normal", "hard"), `aliases`, `type` ("real_person", "living_organism", "geography", "inanimate_object"), and `hints`
+- [x] Async dictionary loader with zero-network bundled fallback (resilient to `file://` CORS restrictions or offline play)
+- [x] Alias-aware guess normalization (e.g. matching "Taylor" or "T-Swift" to "Taylor Swift", "Neo" to "Keanu Reeves")
+- [x] Result card integration displaying secret difficulty rating
+
+### Phase 4.2: Dynamic AI Secret Synthesizer (Instant On-the-Fly Generation)
+- [x] Real-time zero-shot AI secret generation on round start (~200ms via Groq LPU or Google Gemini)
+- [x] Dynamically generates `name`, `category`, `difficulty`, `aliases`, `type`, and `hints` on demand (no static secret bounds)
+- [x] Anti-repetition session tracker (`sessionPlayedSecrets`) preventing duplicate entities within a play session
+- [x] Custom Theme Synthesizer: UI input allowing players to enter *any* custom theme (e.g. "90s Cartoon Villains", "Video Games", "Marvel", "Mythological Gods")
+- [x] Graceful zero-network offline fallback to `data/words.json` if API is unreachable
+
+### Phase 4.3: Tiered Difficulty Modes & Mechanics
+- [ ] 3-Tier difficulty selector (🟢 Rookie / 🟡 Detective / 🔴 Cyber-Sleuth) in Deck Selection modal
+- [ ] Tier-based inquiry limits (20 questions for Rookie/Detective, 15 questions for Cyber-Sleuth)
+- [ ] Tier-scaled satellite intel costs (1 inquiry for Rookie, 2 for Detective, 3 for Cyber-Sleuth)
+- [ ] Scorecard difficulty multiplier bonus (+500 PTS for Cyber-Sleuth)
+
+### Phase 4.4: Context Disambiguation Prompts (Fiction vs Reality)
+- [ ] Inject item `type` metadata into AI system prompt to resolve canon vs real-world ontological questions
 
 ---
 
-## Phase 5: Sharing & Lightweight Deployment (v0.6)
+## Phase 5: The Daily Oracle Challenge (Daily Trivia Web Game) (v0.6)
+**Goal**: Transform Heads-Up into a synchronized daily trivia event (Wordle/Contexto style) when ready to share with friends.
+
+- [ ] Daily Mystery Challenge: Universally synchronized secret seeded by calendar date (`YYYY-MM-DD`)
+- [ ] Daily lockout & midnight countdown timer (`NEXT PUZZLE IN 04h 12m 30s`)
+- [ ] Daily Streak & Performance Statistics tracking (`Current Streak`, `Max Streak`, `Win %`)
+- [ ] Wordle-style spoiler-free shareable emoji matrix (1-click clipboard copypasta for Discord, Twitter, WhatsApp)
+
+---
+
+## Phase 6: Sharing & Lightweight Deployment (v0.7)
 **Goal**: Enable social play and seamless public hosting.
 
 - [ ] Challenge links: share a game round with friends via URL hash/query seed (`?seed=...`)
