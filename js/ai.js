@@ -365,15 +365,21 @@ Respond exclusively in a single JSON object. Example format:
 }
 
 function parseClueRaw(rawText) {
-  const clean = (rawText || "").trim();
+  let clean = (rawText || "").trim();
+  // Strip markdown code fences if present
+  clean = clean.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
   try {
     const parsed = JSON.parse(clean);
     if (parsed.clue) return parsed.clue;
+    if (parsed.hint) return parsed.hint;
+    if (parsed.intel) return parsed.intel;
   } catch (err) {
-    const clueMatch = clean.match(/"clue"\s*:\s*"([^"]+)"/i);
+    const clueMatch = clean.match(/"(?:clue|hint|intel)"\s*:\s*"([^"]+)"/i);
     if (clueMatch) return clueMatch[1];
   }
-  return clean.replace(/[{}\[\]"]/g, "").trim();
+  // Strip wrapping braces or quotes if LLM returned plain text in quotes or braces
+  clean = clean.replace(/^[{"\s]+/, "").replace(/[}"\s]+$/, "").trim();
+  return clean;
 }
 
 async function askGroqClue(secret, secretCategory, knownFactsSummary = "") {
@@ -384,7 +390,7 @@ async function askGroqClue(secret, secretCategory, knownFactsSummary = "") {
 
   const modelSelect = document.getElementById("groqModelSelect");
   const model = modelSelect?.value || getStorage(STORAGE_KEY_GROQ_MODEL, "openai/gpt-oss-20b");
-  const timeoutSec = 20;
+  const timeoutSec = 25;
 
   const systemPrompt = buildCluePrompt(secret, secretCategory, knownFactsSummary);
 
@@ -395,15 +401,15 @@ async function askGroqClue(secret, secretCategory, knownFactsSummary = "") {
     model: model,
     messages: [
       { role: "system", content: systemPrompt },
-      { role: "user", content: `Generate a classified satellite intel clue for this secret identity. Respond strictly with JSON: {"clue": "..."}` }
+      { role: "user", content: `Generate a classified satellite intel clue for this secret identity. Be concise. Respond strictly with JSON: {"clue": "..."}` }
     ],
-    temperature: 0.5,
-    max_tokens: 300,
-    response_format: { type: "json_object" }
+    temperature: 0.2,
+    max_tokens: 1500
   };
 
+  let response;
   try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -412,20 +418,42 @@ async function askGroqClue(secret, secretCategory, knownFactsSummary = "") {
       body: JSON.stringify(payload),
       signal: controller.signal
     });
-    clearTimeout(timeoutId);
-
-    if (!response.ok) {
-      const errText = await response.text();
-      throw new Error(`Groq API error (${response.status}): ${errText.slice(0, 100)}`);
-    }
-
-    const data = await response.json();
-    const rawContent = data.choices?.[0]?.message?.content;
-    return parseClueRaw(rawContent);
   } catch (err) {
     clearTimeout(timeoutId);
-    throw err;
+    if (err.name === "AbortError") {
+      throw new Error(`Groq request timed out (${timeoutSec}s). Check internet connection.`);
+    }
+    throw new Error("Network error connecting to Groq API.");
+  } finally {
+    clearTimeout(timeoutId);
   }
+
+  if (!response.ok) {
+    const errText = await response.text();
+    let msg = `Groq API error (${response.status})`;
+    try {
+      const errJson = JSON.parse(errText);
+      if (errJson.error?.message) {
+        msg = errJson.error.message;
+      }
+    } catch (e) {
+      msg = `${msg}: ${errText.slice(0, 140)}`;
+    }
+
+    console.error("Groq Clue API error details:", { status: response.status, msg });
+    throw new Error(msg);
+  }
+
+  const data = await response.json();
+  const choice = data.choices?.[0];
+  let rawContent = (choice?.message?.content || "").trim();
+  if (!rawContent && choice?.message?.reasoning) {
+    rawContent = (choice.message.reasoning || "").trim();
+  }
+  if (!rawContent) {
+    throw new Error("Received an empty clue response from Groq.");
+  }
+  return parseClueRaw(rawContent);
 }
 
 async function askGeminiClue(secret, secretCategory, knownFactsSummary = "") {
@@ -446,7 +474,7 @@ async function askGeminiClue(secret, secretCategory, knownFactsSummary = "") {
     systemInstruction: { parts: [{ text: systemPrompt }] },
     generationConfig: {
       temperature: 0.5,
-      maxOutputTokens: 200,
+      maxOutputTokens: 300,
       responseMimeType: "application/json",
       responseSchema: {
         type: "OBJECT",
