@@ -245,9 +245,14 @@
 
           <div class="deck-secondary-row">
             <span>RULE: Ask yes/no questions from any perspective ("Am I...", "Is he/it...").</span>
-            <button id="giveUpBtn" class="command-btn btn-giveup" type="button" disabled>
-              GIVE UP / REVEAL
-            </button>
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <button id="intelBtn" class="command-btn btn-intel" type="button" disabled title="Consumes 2 inquiry slots for a classified satellite clue">
+                <span>📡 INTEL (-2Q)</span>
+              </button>
+              <button id="giveUpBtn" class="command-btn btn-giveup" type="button" disabled>
+                GIVE UP / REVEAL
+              </button>
+            </div>
           </div>
         </div>
       </section>

@@ -67,9 +67,12 @@ A lightweight browser-based 20-questions game where the player asks yes/no quest
 - [x] Lightweight & self-contained per round (persistent streaks/records deferred to future phases as requested)
 
 ### Phase 3.3: Satellite Intel / AI Cryptic Clue System
-- [ ] "REQUEST INTEL" button (unlocks after question 8 or costs 2 question slots)
-- [ ] Specialized system prompt instruction to generate a cryptic, high-flavor clue without giving away the name
-- [ ] Dedicated styled transmission bubble and avatar reaction
+- [x] "📡 INTEL (-2Q)" button consuming 2 inquiry slots for classified guidance (1 use per round)
+- [x] Specialized system prompt instruction to generate a cryptic, high-flavor clue without giving away the name
+- [x] Context-aware prompt incorporating confirmed and ruled out traits from the Dossier
+- [x] Dedicated styled transmission bubble (`.intel-bubble`) and avatar reactive state (`state-intel`)
+- [x] Retro 8-bit satellite transmission audio chime synthesized via Web Audio API
+- [x] Auto-recorded into the Evidence Dossier matrix as classified intel
 
 ### Phase 3.4: Question Rewind (Undo) & Session QoL
 - [ ] "Undo Last Question" button to rewind accidental typos or misclicks

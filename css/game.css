@@ -201,6 +201,17 @@
 .oracle-svg.state-sometimes .mouth-thinking { opacity: 1; stroke: #C06BF0; }
 .oracle-svg.state-sometimes .antenna-bulb { fill: #C06BF0; }
 
+/* Satellite Intel Transmission State */
+.oracle-svg.state-intel {
+  animation: avatarNod 0.5s ease-in-out 2;
+}
+.oracle-svg.state-intel .mouth-idle { opacity: 0; }
+.oracle-svg.state-intel .mouth-thinking { opacity: 1; stroke: #C06BF0; }
+.oracle-svg.state-intel .antenna-bulb { fill: #C06BF0; animation: glowPulse 0.3s infinite alternate; }
+.oracle-svg.state-intel .antenna-ring { opacity: 1; animation: pingRing 0.6s cubic-bezier(0, 0, 0.2, 1) infinite; }
+.oracle-svg.state-intel #cheekLeft,
+.oracle-svg.state-intel #cheekRight { fill: #C06BF0; }
+
 /* Unsure State: Spiral / question marks, zigzag mouth, wobble */
 .oracle-svg.state-unsure {
   animation: avatarWobble 0.8s ease-in-out infinite;
@@ -801,6 +812,47 @@
   padding: 6px 10px;
 }
 
+/* Intel / Clue Transmission Bubble */
+.bubble.bot.intel-bubble {
+  border-left: 4px solid var(--purple-light);
+  background: #FAF5FF;
+  box-shadow: 4px 4px 0 var(--purple);
+}
+
+.bubble.bot.intel-bubble::before {
+  content: "ORACLE // CLASSIFIED INTEL TRANSMISSION";
+  color: var(--purple);
+}
+
+.intel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.intel-code {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--annot);
+  letter-spacing: 0.08em;
+}
+
+.intel-body {
+  font-family: 'Archivo', sans-serif;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: #FFFFFF;
+  border: 1.5px dashed var(--purple);
+  padding: 10px 14px;
+  font-style: italic;
+  box-shadow: 2px 2px 0 var(--purple-soft);
+}
+
 /* Thinking Indicator Bubble */
 .bubble.thinking {
   background: var(--paper-dim);
@@ -1140,6 +1192,31 @@
   color: var(--ink) !important;
   font-weight: 800;
   box-shadow: 4px 4px 0 var(--ink);
+}
+
+.command-btn.btn-intel {
+  background: var(--purple-light);
+  color: #0A090D !important;
+  font-weight: 800;
+  border: 1.5px solid var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+  padding: 6px 12px;
+  font-size: 10.5px;
+}
+
+.command-btn.btn-intel:hover:not(:disabled) {
+  background: #D988FF;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.command-btn.btn-intel.intel-spent {
+  background: #E5E1EE;
+  color: var(--annot) !important;
+  cursor: not-allowed;
+  border-style: dashed;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .command-btn.btn-giveup {

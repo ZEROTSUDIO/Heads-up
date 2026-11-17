@@ -42,6 +42,7 @@
   let activeCategory = null;
   let sfxEnabled = true;
   let roundStartTime = Date.now();
+  let clueUsed = false;
 
   // Dossier & View State
   let activeConsoleTab = "chat";
@@ -83,6 +84,7 @@
   const askBtn = document.getElementById("askBtn");
   const guessBtn = document.getElementById("guessBtn");
   const giveUpBtn = document.getElementById("giveUpBtn");
+  const intelBtn = document.getElementById("intelBtn");
   const commandDeck = document.getElementById("commandDeck");
   const counterText = document.getElementById("counterText");
   const trackerSlots = document.getElementById("trackerSlots");
@@ -154,6 +156,12 @@
       case "think":
         playTone(440, "sine", 0.06, 0, 0.06);
         playTone(660, "sine", 0.08, 0.06, 0.06);
+        break;
+      case "intel":
+        playTone(587.33, "triangle", 0.1, 0, 0.1);    // D5
+        playTone(739.99, "triangle", 0.1, 0.08, 0.1); // F#5
+        playTone(880.00, "triangle", 0.15, 0.16, 0.1); // A5
+        playTone(1174.66, "sine", 0.25, 0.24, 0.12);  // D6
         break;
       case "yes":
         playTone(523.25, "triangle", 0.12, 0, 0.1);   // C5
@@ -339,6 +347,37 @@
     chatFeed.scrollTop = chatFeed.scrollHeight;
   }
 
+  function addIntelBubble(clueText, latencyMs = null) {
+    const div = document.createElement("div");
+    div.className = "bubble bot intel-bubble";
+
+    const header = document.createElement("div");
+    header.className = "intel-header";
+
+    const tag = document.createElement("span");
+    tag.className = "badge-answer sometimes";
+    tag.style.fontSize = "11px";
+    tag.style.padding = "2px 8px";
+    tag.textContent = "📡 SATELLITE INTEL";
+
+    const code = document.createElement("span");
+    code.className = "intel-code";
+    code.textContent = `COST: 2 INQUIRIES ${latencyMs ? `// ${latencyMs}ms` : ""}`;
+
+    header.appendChild(tag);
+    header.appendChild(code);
+
+    const body = document.createElement("div");
+    body.className = "intel-body";
+    body.innerHTML = `&ldquo;${escapeHtml(clueText)}&rdquo;`;
+
+    div.appendChild(header);
+    div.appendChild(body);
+
+    chatFeed.appendChild(div);
+    chatFeed.scrollTop = chatFeed.scrollHeight;
+  }
+
   function updateTracker() {
     if (counterText) {
       counterText.textContent = gameOver
@@ -359,11 +398,27 @@
     }
   }
 
+  function updateIntelButtonState() {
+    if (!intelBtn) return;
+    if (clueUsed) {
+      intelBtn.disabled = true;
+      intelBtn.classList.add("intel-spent");
+      intelBtn.innerHTML = "<span>📡 INTEL DEPLETED</span>";
+      intelBtn.title = "Satellite intel has already been utilized for this session";
+    } else {
+      intelBtn.classList.remove("intel-spent");
+      intelBtn.innerHTML = "<span>📡 INTEL (-2Q)</span>";
+      intelBtn.title = "Consumes 2 inquiry slots for a classified satellite clue";
+      intelBtn.disabled = busy || gameOver || secret === null;
+    }
+  }
+
   function setInputEnabled(enabled) {
     gameInput.disabled = !enabled;
     askBtn.disabled = !enabled;
     guessBtn.disabled = !enabled;
     giveUpBtn.disabled = !enabled;
+    updateIntelButtonState();
   }
 
   function setBusy(state) {
@@ -520,7 +575,9 @@
 
     setActiveCategoryChip(name);
     setGuessMode(false);
+    clueUsed = false;
     setInputEnabled(true);
+    updateIntelButtonState();
     updateTracker();
     avatar.setState("idle");
     gameInput.focus();
@@ -714,6 +771,70 @@
     }
   }
 
+  async function handleRequestIntel() {
+    if (clueUsed || busy || gameOver || secret === null) return;
+
+    playSfx("intel");
+    avatar.setState("intel");
+
+    clueUsed = true;
+    // Consumes 2 inquiries
+    questionCount = Math.min(MAX_QUESTIONS, questionCount + 2);
+    updateTracker();
+    updateIntelButtonState();
+    setBusy(true);
+
+    const thinking = addBubble("CALIBRATING SATELLITE SCAN... (0s)", "thinking");
+    let elapsed = 0;
+    const ticker = setInterval(() => {
+      elapsed++;
+      thinking.textContent = `CALIBRATING SATELLITE SCAN... (${elapsed}s)`;
+    }, 1000);
+
+    // Compile summary of known facts to feed the prompt
+    const confirmed = (dossierFacts.yes || []).map(f => f.question).join(", ");
+    const ruledOut = (dossierFacts.no || []).map(f => f.question).join(", ");
+    const summary = `Confirmed: [${confirmed || "None"}]. Ruled Out: [${ruledOut || "None"}].`;
+
+    try {
+      const result = await askAIClue(secret, secretCategory, summary);
+      clearInterval(ticker);
+      thinking.remove();
+
+      addIntelBubble(result.clue, result.latencyMs);
+
+      // Record to Evidence Dossier as classified intel
+      dossierFacts.sometimes.push({
+        question: `[📡 INTEL] ${result.clue}`,
+        confidence: "high",
+        num: questionCount
+      });
+      renderDossier();
+
+    } catch (err) {
+      clearInterval(ticker);
+      thinking.remove();
+      console.error("Intel error:", err);
+      addBubble(`INTEL TRANSMISSION FAILED: ${err.message}`, "system");
+      // Refund 2 inquiries if API request failed
+      questionCount = Math.max(0, questionCount - 2);
+      clueUsed = false;
+      updateTracker();
+      updateIntelButtonState();
+      avatar.setState("unsure");
+    } finally {
+      clearInterval(ticker);
+      thinking?.remove();
+      setBusy(false);
+    }
+
+    if (!gameOver && questionCount >= MAX_QUESTIONS) {
+      endGame(false);
+    } else {
+      gameInput.focus();
+    }
+  }
+
   // ============ SETTINGS CONTROLLER ============
   window.updateProviderUI = function () {
     const provider = providerSelect.value;
@@ -816,6 +937,7 @@
     askBtn.addEventListener("click", handleAsk);
     guessBtn.addEventListener("click", handleGuess);
     giveUpBtn.addEventListener("click", handleGiveUp);
+    if (intelBtn) intelBtn.addEventListener("click", handleRequestIntel);
 
     // Keyboard navigation
     gameInput.addEventListener("keydown", e => {

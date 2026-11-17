@@ -344,3 +344,158 @@ async function askAI(question, secret, secretCategory) {
   result.latencyMs = elapsedMs;
   return result;
 }
+
+// ============ SATELLITE INTEL / CLUE GENERATORS ============
+function buildCluePrompt(secret, secretCategory, knownFactsSummary = "") {
+  return `You are ORACLE-ZERO, an AI secret keeper in a "Guess What's on Your Head" guessing game.
+The secret identity is: "${secret}" (Category: "${secretCategory}").
+
+CRITICAL TASK:
+The player has engaged SATELLITE INTEL because they need guidance.
+Generate a single cryptic, intriguing, and thematic clue about "${secret}".
+
+RULES:
+1. NEVER mention, spell, rhyme with, or give away the name "${secret}" or direct variations of it.
+2. The clue must be exactly 1 to 2 sentences, formatted like an authentic retro-futuristic AI sensor / satellite scan (e.g. "Long-range scanners detect...", "Spectral analysis indicates...", "Deep archives reveal...").
+3. Point to a distinctive cultural impact, physical trait, historical quirk, or environmental characteristic.
+4. ${knownFactsSummary ? `Do not repeat known verified facts: ${knownFactsSummary}` : "Keep it fresh and helpful."}
+
+Respond exclusively in a single JSON object. Example format:
+{"clue": "Deep archives reveal this entity is celebrated worldwide for record-breaking stage performances and iconic stadium tours.", "code": "INTEL-ALPHA"}`;
+}
+
+function parseClueRaw(rawText) {
+  const clean = (rawText || "").trim();
+  try {
+    const parsed = JSON.parse(clean);
+    if (parsed.clue) return parsed.clue;
+  } catch (err) {
+    const clueMatch = clean.match(/"clue"\s*:\s*"([^"]+)"/i);
+    if (clueMatch) return clueMatch[1];
+  }
+  return clean.replace(/[{}\[\]"]/g, "").trim();
+}
+
+async function askGroqClue(secret, secretCategory, knownFactsSummary = "") {
+  const apiKey = document.getElementById("groqApiKey")?.value.trim() || getStorage(STORAGE_KEY_GROQ_KEY, "") || "";
+  if (!apiKey) {
+    throw new Error("No Groq API key found. Open Settings to set your key.");
+  }
+
+  const modelSelect = document.getElementById("groqModelSelect");
+  const model = modelSelect?.value || getStorage(STORAGE_KEY_GROQ_MODEL, "openai/gpt-oss-20b");
+  const timeoutSec = 20;
+
+  const systemPrompt = buildCluePrompt(secret, secretCategory, knownFactsSummary);
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutSec * 1000);
+
+  const payload = {
+    model: model,
+    messages: [
+      { role: "system", content: systemPrompt },
+      { role: "user", content: `Generate a classified satellite intel clue for this secret identity. Respond strictly with JSON: {"clue": "..."}` }
+    ],
+    temperature: 0.5,
+    max_tokens: 300,
+    response_format: { type: "json_object" }
+  };
+
+  try {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Groq API error (${response.status}): ${errText.slice(0, 100)}`);
+    }
+
+    const data = await response.json();
+    const rawContent = data.choices?.[0]?.message?.content;
+    return parseClueRaw(rawContent);
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
+}
+
+async function askGeminiClue(secret, secretCategory, knownFactsSummary = "") {
+  const apiKey = document.getElementById("geminiApiKey")?.value.trim() || getStorage(STORAGE_KEY_GEMINI_KEY, "") || "";
+  if (!apiKey) {
+    throw new Error("No Gemini API key found. Open Settings to set your key.");
+  }
+
+  const modelSelect = document.getElementById("geminiModelSelect");
+  const model = modelSelect?.value || "gemini-3.8-flash";
+  const timeoutSec = 25;
+
+  const systemPrompt = buildCluePrompt(secret, secretCategory, knownFactsSummary);
+  const generateContentUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  const generateContentPayload = {
+    contents: [{ role: "user", parts: [{ text: "Generate a classified satellite intel clue." }] }],
+    systemInstruction: { parts: [{ text: systemPrompt }] },
+    generationConfig: {
+      temperature: 0.5,
+      maxOutputTokens: 200,
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: "OBJECT",
+        properties: {
+          clue: { type: "STRING" }
+        },
+        required: ["clue"]
+      }
+    }
+  };
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutSec * 1000);
+
+  try {
+    const response = await fetch(generateContentUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(generateContentPayload),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errText = await response.text();
+      throw new Error(`Gemini API error (${response.status}): ${errText.slice(0, 100)}`);
+    }
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || data.output_text;
+    return parseClueRaw(text);
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
+  }
+}
+
+async function askAIClue(secret, secretCategory, knownFactsSummary = "") {
+  const providerSelect = document.getElementById("providerSelect");
+  const provider = providerSelect?.value || getStorage(STORAGE_KEY_PROVIDER, "groq");
+  const startTime = performance.now();
+
+  let clue;
+  if (provider === "groq") {
+    clue = await askGroqClue(secret, secretCategory, knownFactsSummary);
+  } else {
+    clue = await askGeminiClue(secret, secretCategory, knownFactsSummary);
+  }
+
+  const elapsedMs = Math.round(performance.now() - startTime);
+  return { clue, latencyMs: elapsedMs };
+}

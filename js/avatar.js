@@ -208,6 +208,16 @@ class OracleAvatar {
         }
         break;
 
+      case "intel":
+        if (this.statusTextEl) this.statusTextEl.textContent = "SATELLITE INTEL // TRANSMITTING";
+        if (this.confLabelEl) this.confLabelEl.textContent = "CLASSIFIED DATA";
+        if (this.confBarEl) {
+          this.confBarEl.style.width = "85%";
+          this.confBarEl.className = "telemetry-gauge-fill fill-lilac";
+        }
+        this.scheduleIdleReset(5500);
+        break;
+
       case "yes-high":
         if (this.statusTextEl) this.statusTextEl.textContent = "AFFIRMATIVE [YES]";
         if (this.confLabelEl) this.confLabelEl.textContent = "100% HIGH";
