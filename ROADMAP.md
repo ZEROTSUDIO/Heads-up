@@ -74,10 +74,8 @@ A lightweight browser-based 20-questions game where the player asks yes/no quest
 - [x] Retro 8-bit satellite transmission audio chime synthesized via Web Audio API
 - [x] Auto-recorded into the Evidence Dossier matrix as classified intel
 
-### Phase 3.4: Question Rewind (Undo) & Session QoL
-- [ ] "Undo Last Question" button to rewind accidental typos or misclicks
-- [ ] Round restart confirmation and clean state wipe
-- [ ] Sound toggle indicator badge in UI
+### Phase 3.4: Question Rewind (Undo) [CANCELLED]
+- ~~"Undo Last Question" button~~ (Cancelled per user decision — pure arcade commitment)
 
 ---
 

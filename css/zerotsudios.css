@@ -49,7 +49,7 @@ body {
   color: var(--ink);
   font-family: 'Archivo', sans-serif;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Subtle architectural grain */

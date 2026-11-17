@@ -92,6 +92,16 @@
   const secretCategoryLabel = document.getElementById("secretCategoryLabel");
   const headerActiveCategory = document.getElementById("headerActiveCategory");
 
+  // Deck Modal & Header Controls
+  const startPlayBtn = document.getElementById("startPlayBtn");
+  const soundToggleBtn = document.getElementById("soundToggleBtn");
+  const soundToggleIcon = document.getElementById("soundToggleIcon");
+  const changeDeckBtn = document.getElementById("changeDeckBtn");
+  const activeDeckNamePill = document.getElementById("activeDeckNamePill");
+  const deckModal = document.getElementById("deckModal");
+  const closeDeckModalBtn = document.getElementById("closeDeckModalBtn");
+  const deckCards = document.querySelectorAll(".deck-select-card");
+
   // Settings Modal Elements
   const settingsBtn = document.getElementById("settingsBtn");
   const settingsModal = document.getElementById("settingsModal");
@@ -150,6 +160,12 @@
   function playSfx(name) {
     if (!sfxEnabled) return;
     switch (name) {
+      case "start":
+        playTone(392.00, "square", 0.08, 0, 0.08);    // G4
+        playTone(523.25, "square", 0.08, 0.07, 0.08); // C5
+        playTone(659.25, "square", 0.08, 0.14, 0.08); // E5
+        playTone(783.99, "square", 0.22, 0.21, 0.1);  // G5
+        break;
       case "click":
         playTone(600, "sine", 0.04, 0, 0.08);
         break;
@@ -438,12 +454,16 @@
   }
 
   function setActiveCategoryChip(name) {
-    document.querySelectorAll(".category-chip-btn").forEach(btn => {
-      btn.classList.toggle("active", btn.dataset.category === name);
-    });
+    const formatted = (name || "STANDBY").toUpperCase();
     if (headerActiveCategory) {
-      headerActiveCategory.textContent = name.toUpperCase();
+      headerActiveCategory.textContent = formatted;
     }
+    if (activeDeckNamePill) {
+      activeDeckNamePill.textContent = name ? formatted : "STANDBY // NONE";
+    }
+    document.querySelectorAll(".deck-select-card").forEach(btn => {
+      btn.classList.toggle("active-deck", btn.dataset.category === name);
+    });
   }
 
   // ============ EVIDENCE DOSSIER CONTROLLER ============
@@ -545,17 +565,72 @@
     };
   }
 
+  function openDeckModal() {
+    playSfx("click");
+    if (deckModal) deckModal.classList.add("open");
+  }
+
+  function closeDeckModal() {
+    if (deckModal) deckModal.classList.remove("open");
+  }
+
+  function showStandbyScreen() {
+    secret = null;
+    secretCategory = null;
+    gameOver = true;
+    setInputEnabled(false);
+    setGuessMode(false);
+
+    if (activeSecretBadge) {
+      activeSecretBadge.textContent = "?? [SELECT DECK TO PLAY] ??";
+      activeSecretBadge.style.background = "var(--paper-dim)";
+      activeSecretBadge.style.color = "var(--ink)";
+    }
+    if (secretCategoryLabel) secretCategoryLabel.textContent = "CATEGORY: NONE";
+    if (headerActiveCategory) headerActiveCategory.textContent = "STANDBY";
+    if (activeDeckNamePill) activeDeckNamePill.textContent = "STANDBY // NONE";
+    if (startPlayBtn) startPlayBtn.innerHTML = `<span>▶ PLAY GAME</span>`;
+
+    chatFeed.innerHTML = `
+      <div class="deck-welcome-hero">
+        <div class="welcome-stamp">ARCADE READY // 20 QUESTIONS</div>
+        <div class="welcome-title">ORACLE-ZERO IS ONLINE</div>
+        <p class="welcome-desc">
+          A classified secret identity will be mounted to your virtual forehead. Interrogate ORACLE-ZERO using 20 yes/no questions to deduce what you are.
+        </p>
+        <button id="heroStartBtn" class="command-btn btn-ask hero-play-btn" type="button">
+          <span>▶ START GAME // CHOOSE DECK</span>
+        </button>
+      </div>
+    `;
+
+    const heroBtn = document.getElementById("heroStartBtn");
+    if (heroBtn) {
+      heroBtn.addEventListener("click", () => {
+        openDeckModal();
+      });
+    }
+
+    avatar.setState("idle");
+  }
+
   function startRound(name, silent = false) {
-    const list = categories[name];
+    let selectedCat = name;
+    if (selectedCat === "random") {
+      const keys = Object.keys(categories);
+      selectedCat = keys[Math.floor(Math.random() * keys.length)];
+    }
+
+    const list = categories[selectedCat];
     if (!list || list.length === 0) return;
 
-    if (!silent) playSfx("click");
+    if (!silent) playSfx("start");
     const index = Math.floor(Math.random() * list.length);
     secret = list[index];
-    secretCategory = name;
+    secretCategory = selectedCat;
     questionCount = 0;
     gameOver = false;
-    activeCategory = name;
+    activeCategory = selectedCat;
     roundStartTime = Date.now();
 
     // Reset Dossier state
@@ -564,22 +639,24 @@
     setConsoleTab("chat");
 
     chatFeed.innerHTML = "";
-    addBubble(`PROTOCOL ENGAGED: Target category "${name.toUpperCase()}". The secret identity has been mounted to your forehead. Ask yes/no questions, or press "GUESS" when ready.`, "system");
+    addBubble(`PROTOCOL ENGAGED: Target category "${selectedCat.toUpperCase()}". The secret identity has been mounted to your virtual forehead. Ask yes/no questions, or press "GUESS" when ready.`, "system");
 
     if (activeSecretBadge) {
       activeSecretBadge.textContent = "?? [CLASSIFIED] ??";
       activeSecretBadge.style.background = "var(--paper-dim)";
       activeSecretBadge.style.color = "var(--ink)";
     }
-    if (secretCategoryLabel) secretCategoryLabel.textContent = `CATEGORY: ${name.toUpperCase()}`;
+    if (secretCategoryLabel) secretCategoryLabel.textContent = `CATEGORY: ${selectedCat.toUpperCase()}`;
+    if (startPlayBtn) startPlayBtn.innerHTML = `<span>🗂 NEW DECK</span>`;
 
-    setActiveCategoryChip(name);
+    setActiveCategoryChip(selectedCat);
     setGuessMode(false);
     clueUsed = false;
     setInputEnabled(true);
     updateIntelButtonState();
     updateTracker();
     avatar.setState("idle");
+    closeDeckModal();
     gameInput.focus();
   }
 
@@ -660,16 +737,24 @@
         </div>
       </div>
 
-      <button id="playAgainBtn" class="header-btn btn-active-purple" style="padding: 12px 24px; font-size: 13px;">
-        START NEXT ROUND →
-      </button>
+      <div class="result-actions-row">
+        <button id="rematchBtn" class="header-btn btn-active-purple" style="padding: 12px 20px; font-size: 12px;">
+          ↺ PLAY AGAIN (${secretCategory.toUpperCase()})
+        </button>
+        <button id="chooseDeckAfterGameBtn" class="header-btn" style="padding: 12px 20px; font-size: 12px;">
+          🗂 CHOOSE NEW DECK
+        </button>
+      </div>
     `;
 
     chatFeed.appendChild(card);
     chatFeed.scrollTop = chatFeed.scrollHeight;
 
-    const btn = card.querySelector("#playAgainBtn");
-    btn.addEventListener("click", () => startRound(secretCategory));
+    const rematchBtn = card.querySelector("#rematchBtn");
+    if (rematchBtn) rematchBtn.addEventListener("click", () => startRound(secretCategory));
+
+    const chooseDeckBtn = card.querySelector("#chooseDeckAfterGameBtn");
+    if (chooseDeckBtn) chooseDeckBtn.addEventListener("click", () => openDeckModal());
   }
 
   async function handleAsk() {
@@ -886,6 +971,7 @@
     const savedSfx = getStorage(STORAGE_KEY_SFX, "true");
     sfxEnabled = savedSfx !== "false";
     if (sfxToggle) sfxToggle.checked = sfxEnabled;
+    if (soundToggleIcon) soundToggleIcon.textContent = sfxEnabled ? "🔊" : "🔇";
   }
 
   async function populateGroqModels(apiKey) {
@@ -928,10 +1014,35 @@
       });
     }
 
-    // Category chips
-    document.querySelectorAll(".category-chip-btn").forEach(btn => {
-      btn.addEventListener("click", () => startRound(btn.dataset.category));
+    // Deck Selection Modal Open/Close
+    if (startPlayBtn) startPlayBtn.addEventListener("click", openDeckModal);
+    if (changeDeckBtn) changeDeckBtn.addEventListener("click", openDeckModal);
+    if (closeDeckModalBtn) closeDeckModalBtn.addEventListener("click", closeDeckModal);
+
+    if (deckModal) {
+      deckModal.addEventListener("click", e => {
+        if (e.target === deckModal) closeDeckModal();
+      });
+    }
+
+    // Deck Cards selection
+    deckCards.forEach(card => {
+      card.addEventListener("click", () => {
+        const cat = card.dataset.category;
+        startRound(cat);
+      });
     });
+
+    // Sound quick toggle in header
+    if (soundToggleBtn) {
+      soundToggleBtn.addEventListener("click", () => {
+        sfxEnabled = !sfxEnabled;
+        setStorage(STORAGE_KEY_SFX, sfxEnabled ? "true" : "false");
+        if (sfxToggle) sfxToggle.checked = sfxEnabled;
+        if (soundToggleIcon) soundToggleIcon.textContent = sfxEnabled ? "🔊" : "🔇";
+        if (sfxEnabled) playSfx("click");
+      });
+    }
 
     // Action buttons
     askBtn.addEventListener("click", handleAsk);
@@ -1087,7 +1198,7 @@
     avatar = new OracleAvatar("oracleAvatarContainer");
     loadSettings();
     bindEvents();
-    startRound("celebrities", true);
+    showStandbyScreen();
   }
 
   document.addEventListener("DOMContentLoaded", initGame);

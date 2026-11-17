@@ -87,17 +87,101 @@
   align-items: start;
 }
 
-@media (max-width: 960px) {
-  .game-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ══════════ LEFT COLUMN: THE ORACLE BOOTH ══════════ */
+/* ══════════ LEFT COLUMN: THE ORACLE BOOTH (STICKY) ══════════ */
 .oracle-booth {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
+  position: sticky;
+  top: 18px;
+  align-self: start;
+  z-index: 20;
+}
+
+@media (max-height: 850px) and (min-width: 961px) {
+  .oracle-booth {
+    gap: 12px;
+    top: 10px;
+  }
+  .avatar-card-inner {
+    padding: 14px 16px 12px;
+  }
+  .avatar-stage {
+    max-width: 190px;
+    height: 190px;
+  }
+  .forehead-card-header {
+    padding: 6px 12px;
+  }
+  .forehead-badge {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 960px) {
+  .game-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .oracle-booth {
+    position: sticky;
+    top: 8px;
+    z-index: 40;
+    background: var(--paper);
+    padding: 8px 10px;
+    border: 2px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--ink);
+    display: grid;
+    grid-template-columns: 96px 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .avatar-card {
+    box-shadow: none;
+    border: 1.5px solid var(--ink);
+    transform: none !important;
+  }
+
+  .avatar-card .badge-tape,
+  .avatar-card .title-bar {
+    display: none;
+  }
+
+  .avatar-card-inner {
+    padding: 4px;
+    border-bottom: none;
+    background: transparent;
+  }
+
+  .avatar-stage {
+    width: 86px;
+    max-width: 86px;
+    height: 86px;
+  }
+
+  .forehead-card {
+    box-shadow: none;
+    border: 1.5px solid var(--ink);
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .forehead-card-header {
+    padding: 6px 10px;
+    font-size: 9px;
+  }
+
+  .forehead-badge {
+    padding: 6px 10px;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+  }
 }
 
 .avatar-card {
@@ -455,15 +539,35 @@
   background: var(--purple);
 }
 
-/* Category Selector Strip */
+/* Category Strip / Active Deck Bar */
 .category-strip {
-  padding: 12px 16px;
+  padding: 10px 16px;
   border-bottom: 2px solid var(--ink);
   background: var(--paper);
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  gap: 12px;
   flex-wrap: wrap;
+}
+
+.category-status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.deck-pill {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  background: var(--ink);
+  color: #FFFFFF;
+  border: 1.5px solid var(--ink);
+  text-transform: uppercase;
+  box-shadow: 2px 2px 0 var(--purple);
 }
 
 .category-label {
@@ -473,7 +577,6 @@
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--annot);
-  margin-right: 4px;
 }
 
 .category-chip-btn {
@@ -1092,7 +1195,17 @@
   color: var(--purple);
 }
 
-/* ══════════ INPUT COMMAND BAR ══════════ */
+.result-actions-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  width: 100%;
+}
+
+/* ══════════ INPUT COMMAND BAR (DOCKED STICKY) ══════════ */
 .command-deck {
   padding: 16px 20px;
   background: var(--paper);
@@ -1100,6 +1213,10 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  position: sticky;
+  bottom: 0;
+  z-index: 15;
+  box-shadow: 0 -4px 0 rgba(10, 9, 13, 0.04);
 }
 
 .command-inputs-row {
@@ -1328,6 +1445,168 @@
 
 .key-status-indicator.saved { color: #4EE085; }
 .key-status-indicator.empty { color: #FCD34D; }
+
+/* ══════════ ARCADE STANDBY HERO (WELCOME SCREEN) ══════════ */
+.deck-welcome-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 34px 24px;
+  margin: auto;
+  background: #FFFFFF;
+  border: 2px solid var(--ink);
+  box-shadow: 6px 6px 0 var(--ink);
+  max-width: 520px;
+  width: 100%;
+}
+
+.welcome-stamp {
+  font-family: 'Space Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: var(--purple);
+  background: var(--paper-dim);
+  border: 1.5px dashed var(--purple);
+  padding: 4px 10px;
+  margin-bottom: 14px;
+}
+
+.welcome-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 32px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.welcome-desc {
+  font-family: 'Archivo', sans-serif;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  line-height: 1.5;
+  margin-bottom: 24px;
+  max-width: 440px;
+}
+
+.hero-play-btn {
+  font-size: 14px;
+  padding: 14px 28px;
+  box-shadow: 4px 4px 0 var(--ink);
+  cursor: pointer;
+  letter-spacing: 0.08em;
+}
+
+.hero-play-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--ink);
+}
+
+/* ══════════ ARCADE DECK SELECTION MODAL ══════════ */
+.deck-modal-card {
+  width: 100%;
+  max-width: 680px;
+  background: var(--obsidian);
+  color: #FFFFFF;
+  border: 2px solid var(--paper);
+  box-shadow: 10px 10px 0 var(--purple);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.deck-modal-inner {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.deck-modal-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.deck-modal-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--purple-light);
+  text-transform: uppercase;
+}
+
+.deck-modal-desc {
+  font-size: 12.5px;
+  color: var(--purple-soft);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.deck-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.deck-select-card {
+  background: #140C24;
+  border: 2px solid #38225C;
+  box-shadow: 4px 4px 0 #0A090D;
+  padding: 16px 14px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.deck-select-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 6px 6px 0 var(--purple);
+  border-color: var(--purple-light);
+  background: #1D1136;
+}
+
+.deck-select-card.card-surprise {
+  border-color: var(--purple);
+  background: #1A0D30;
+}
+
+.deck-select-card.card-surprise:hover {
+  box-shadow: 6px 6px 0 #FCD34D;
+  border-color: #FCD34D;
+}
+
+.deck-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.deck-card-icon {
+  font-size: 22px;
+}
+
+.deck-card-name {
+  font-family: 'Anton', sans-serif;
+  font-size: 20px;
+  color: #FFFFFF;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+
+.deck-card-desc {
+  font-family: 'Archivo', sans-serif;
+  font-size: 11.5px;
+  color: var(--purple-soft);
+  line-height: 1.35;
+}
 
 /* ══════════ RESPONSIVE ADJUSTMENTS ══════════ */
 @media (max-width: 640px) {

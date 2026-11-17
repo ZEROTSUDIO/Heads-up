@@ -40,6 +40,14 @@
           <span id="headerActiveCategory">STANDBY</span>
         </div>
 
+        <button id="startPlayBtn" class="header-btn btn-active-purple" type="button" title="Select Deck & Start Round">
+          <span>▶ PLAY GAME</span>
+        </button>
+
+        <button id="soundToggleBtn" class="header-btn" type="button" title="Toggle Sound Effects">
+          <span id="soundToggleIcon">🔊</span>
+        </button>
+
         <button id="settingsBtn" class="header-btn" type="button" title="Configure AI Provider & Settings">
           <span>⚙ SETTINGS</span>
         </button>
@@ -74,7 +82,7 @@
             <span id="secretCategoryLabel">CATEGORY: NONE</span>
           </div>
           <div id="activeSecretBadge" class="forehead-badge">
-            ?? [SELECT CATEGORY] ??
+            ?? [SELECT DECK TO PLAY] ??
           </div>
         </div>
       </section>
@@ -116,23 +124,14 @@
           </div>
         </div>
 
-        <!-- Category Selector Strip -->
+        <!-- Active Deck Banner & Selector -->
         <div class="category-strip">
-          <span class="category-label">SELECT DECK:</span>
-          <button class="category-chip-btn" data-category="animals" type="button">
-            <span class="chip-dot teal"></span>ANIMALS
-          </button>
-          <button class="category-chip-btn" data-category="objects" type="button">
-            <span class="chip-dot purple"></span>OBJECTS
-          </button>
-          <button class="category-chip-btn" data-category="celebrities" type="button">
-            <span class="chip-dot orange"></span>CELEBRITIES
-          </button>
-          <button class="category-chip-btn" data-category="food" type="button">
-            <span class="chip-dot blood"></span>FOOD
-          </button>
-          <button class="category-chip-btn" data-category="countries" type="button">
-            <span class="chip-dot dark"></span>COUNTRIES
+          <div class="category-status-wrap">
+            <span class="category-label">ACTIVE DECK:</span>
+            <span id="activeDeckNamePill" class="deck-pill">STANDBY // NONE</span>
+          </div>
+          <button id="changeDeckBtn" class="header-btn" type="button" style="padding: 4px 10px; font-size: 10px;">
+            <span>🗂 CHOOSE DECK</span>
           </button>
         </div>
 
@@ -259,6 +258,87 @@
 
     </main>
 
+  </div>
+
+  <!-- ══════════ DECK SELECTION MODAL (ARCADE CATEGORY PICKER) ══════════ -->
+  <div id="deckModal" class="settings-modal-backdrop">
+    <div class="deck-modal-card panel-dark">
+      <div class="title-bar-dark">
+        <span>ARCADE DECK SELECTION // CATEGORIES</span>
+        <button id="closeDeckModalBtn" type="button" style="background: transparent; border: none; color: #FFFFFF; font-size: 16px; cursor: pointer; font-family: monospace;">✕</button>
+      </div>
+
+      <div class="deck-modal-inner">
+        <div class="deck-modal-header">
+          <span class="deck-modal-tag">CHOOSE YOUR TARGET</span>
+          <p class="deck-modal-desc">
+            Select a deck for ORACLE-ZERO to mount onto your virtual forehead. You get 20 yes/no questions to deduce what you are.
+          </p>
+        </div>
+
+        <div class="deck-cards-grid">
+          <!-- ANIMALS -->
+          <button class="deck-select-card" data-category="animals" type="button">
+            <div class="deck-card-top">
+              <span class="deck-card-icon">🐾</span>
+              <span class="badge-answer sometimes" style="font-size: 10px; padding: 2px 7px;">FAUNA</span>
+            </div>
+            <div class="deck-card-name">ANIMALS</div>
+            <div class="deck-card-desc">Wildlife, marine creatures, predators & birds.</div>
+          </button>
+
+          <!-- CELEBRITIES -->
+          <button class="deck-select-card" data-category="celebrities" type="button">
+            <div class="deck-card-top">
+              <span class="deck-card-icon">🎭</span>
+              <span class="badge-answer sometimes" style="font-size: 10px; padding: 2px 7px;">ICONS</span>
+            </div>
+            <div class="deck-card-name">CELEBRITIES</div>
+            <div class="deck-card-desc">Famous actors, musicians, thinkers & athletes.</div>
+          </button>
+
+          <!-- FOOD -->
+          <button class="deck-select-card" data-category="food" type="button">
+            <div class="deck-card-top">
+              <span class="deck-card-icon">🍕</span>
+              <span class="badge-answer sometimes" style="font-size: 10px; padding: 2px 7px;">CUISINE</span>
+            </div>
+            <div class="deck-card-name">FOOD & DRINK</div>
+            <div class="deck-card-desc">Popular worldwide dishes, ingredients, treats & snacks.</div>
+          </button>
+
+          <!-- COUNTRIES -->
+          <button class="deck-select-card" data-category="countries" type="button">
+            <div class="deck-card-top">
+              <span class="deck-card-icon">🌍</span>
+              <span class="badge-answer sometimes" style="font-size: 10px; padding: 2px 7px;">GEOGRAPHY</span>
+            </div>
+            <div class="deck-card-name">COUNTRIES</div>
+            <div class="deck-card-desc">Nations, travel destinations & global territories.</div>
+          </button>
+
+          <!-- OBJECTS -->
+          <button class="deck-select-card" data-category="objects" type="button">
+            <div class="deck-card-top">
+              <span class="deck-card-icon">📦</span>
+              <span class="badge-answer sometimes" style="font-size: 10px; padding: 2px 7px;">ITEMS</span>
+            </div>
+            <div class="deck-card-name">OBJECTS</div>
+            <div class="deck-card-desc">Household items, tools, instruments & gadgets.</div>
+          </button>
+
+          <!-- SURPRISE ME (RANDOM) -->
+          <button class="deck-select-card card-surprise" data-category="random" type="button">
+            <div class="deck-card-top">
+              <span class="deck-card-icon">🎲</span>
+              <span class="badge-answer yes" style="font-size: 10px; padding: 2px 7px;">WILDCARD</span>
+            </div>
+            <div class="deck-card-name">SURPRISE ME</div>
+            <div class="deck-card-desc">Oracle picks any secret from all available categories!</div>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ══════════ SETTINGS MODAL (OBSIDIAN PLATE) ══════════ -->
