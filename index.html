@@ -48,6 +48,10 @@
           <span id="soundToggleIcon">🔊</span>
         </button>
 
+        <button id="profileBtn" class="header-btn" type="button" title="Optional Player Profile (Personalizes Relational Questions)">
+          <span id="profileBtnLabel">👤 PROFILE</span>
+        </button>
+
         <button id="settingsBtn" class="header-btn" type="button" title="Configure AI Provider & Settings">
           <span>⚙ SETTINGS</span>
         </button>
@@ -445,45 +449,60 @@
           <input id="sfxToggle" type="checkbox" checked style="width: 18px; height: 18px; accent-color: var(--purple-light); cursor: pointer;">
         </div>
 
-        <!-- Optional Player Profile -->
-        <div class="settings-group profile-settings-section">
-          <div class="profile-settings-header">
-            <div>
-              <div class="settings-label">👤 PLAYER PROFILE (OPTIONAL)</div>
-              <div id="profileStatusBadge" class="key-status-indicator empty">Neutral (No profile set)</div>
-            </div>
-            <button id="clearProfileBtn" type="button" class="header-btn" style="padding: 4px 10px; font-size: 10px;">CLEAR PROFILE</button>
-          </div>
+      </div>
+    </div>
+  </div>
 
-          <div class="profile-fields-grid">
-            <div class="profile-field">
-              <label class="profile-sublabel" for="profileName">Name / Nickname</label>
-              <input id="profileName" type="text" class="settings-input" placeholder="e.g. Alex">
-            </div>
-            <div class="profile-field">
-              <label class="profile-sublabel" for="profileAge">Age</label>
-              <input id="profileAge" type="number" min="1" max="120" class="settings-input" placeholder="e.g. 25">
-            </div>
-            <div class="profile-field">
-              <label class="profile-sublabel" for="profileGender">Gender</label>
-              <input id="profileGender" type="text" class="settings-input" placeholder="e.g. Male, Female, Non-binary">
-            </div>
-            <div class="profile-field">
-              <label class="profile-sublabel" for="profileCountry">Country / Origin</label>
-              <input id="profileCountry" type="text" class="settings-input" placeholder="e.g. Indonesia, Japan">
-            </div>
-          </div>
+  <!-- ══════════ PLAYER PROFILE MODAL (OBSIDIAN PLATE) ══════════ -->
+  <div id="profileModal" class="settings-modal-backdrop">
+    <div class="settings-modal-card panel-dark">
+      <div class="title-bar-dark">
+        <span>PLAYER PROFILE // OPTIONAL</span>
+        <button id="closeProfileModalBtn" type="button" style="background: transparent; border: none; color: #FFFFFF; font-size: 16px; cursor: pointer; font-family: monospace;">✕</button>
+      </div>
 
-          <div class="profile-field">
-            <label class="profile-sublabel" for="profilePreferences">Tastes, Vibe &amp; Preferences</label>
-            <input id="profilePreferences" type="text" class="settings-input" placeholder="e.g. loves spicy food, sci-fi, cats; dislikes horror">
+      <div class="settings-modal-inner">
+        <div class="profile-settings-header">
+          <div>
+            <div class="settings-label">👤 PERSONAL CONTEXT</div>
+            <div id="profileStatusBadge" class="key-status-indicator empty">Neutral (No profile set)</div>
           </div>
-
-          <p class="settings-help">
-            100% optional &amp; saved in browser <code>localStorage</code>. Lets ORACLE-ZERO personalize relational questions like <em>"Would I like this food?"</em> or <em>"Is this famous in my country?"</em>.
-          </p>
+          <button id="clearProfileBtn" type="button" class="header-btn" style="padding: 4px 10px; font-size: 10px;">CLEAR PROFILE</button>
         </div>
 
+        <p class="settings-help" style="margin: 0;">
+          100% optional &amp; saved in browser <code>localStorage</code>. Lets ORACLE-ZERO personalize relational questions like <em>"Would I marry this person?"</em>, <em>"Would I like this food?"</em>, or <em>"Is this famous in my country?"</em>.
+        </p>
+
+        <div class="profile-fields-grid">
+          <div class="profile-field">
+            <label class="profile-sublabel" for="profileName">Name / Nickname</label>
+            <input id="profileName" type="text" class="settings-input" placeholder="e.g. Alex">
+          </div>
+          <div class="profile-field">
+            <label class="profile-sublabel" for="profileAge">Age</label>
+            <input id="profileAge" type="number" min="1" max="120" class="settings-input" placeholder="e.g. 25">
+          </div>
+          <div class="profile-field">
+            <label class="profile-sublabel" for="profileGender">Gender</label>
+            <input id="profileGender" type="text" class="settings-input" placeholder="e.g. Male, Female, Non-binary">
+          </div>
+          <div class="profile-field">
+            <label class="profile-sublabel" for="profileCountry">Country / Origin</label>
+            <input id="profileCountry" type="text" class="settings-input" placeholder="e.g. Indonesia, Japan">
+          </div>
+        </div>
+
+        <div class="profile-field">
+          <label class="profile-sublabel" for="profilePreferences">Tastes, Vibe &amp; Preferences</label>
+          <input id="profilePreferences" type="text" class="settings-input" placeholder="e.g. loves spicy food, sci-fi, cats; dislikes horror">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; padding-top: 4px;">
+          <button id="saveCloseProfileBtn" type="button" class="header-btn btn-active-purple">
+            ✓ DONE
+          </button>
+        </div>
       </div>
     </div>
   </div>

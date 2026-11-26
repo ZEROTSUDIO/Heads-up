@@ -227,7 +227,12 @@
   const testKeyResult = document.getElementById("testKeyResult");
   const refreshGroqModelsBtn = document.getElementById("refreshGroqModelsBtn");
 
-  // Player Profile Elements
+  // Player Profile Modal & Elements
+  const profileBtn = document.getElementById("profileBtn");
+  const profileBtnLabel = document.getElementById("profileBtnLabel");
+  const profileModal = document.getElementById("profileModal");
+  const closeProfileModalBtn = document.getElementById("closeProfileModalBtn");
+  const saveCloseProfileBtn = document.getElementById("saveCloseProfileBtn");
   const profileNameInput = document.getElementById("profileName");
   const profileAgeInput = document.getElementById("profileAge");
   const profileGenderInput = document.getElementById("profileGender");
@@ -1209,6 +1214,15 @@
         : "key-status-indicator empty";
     }
 
+    if (profileBtn) {
+      profileBtn.classList.toggle("btn-profile-active", hasProfile);
+    }
+    if (profileBtnLabel) {
+      profileBtnLabel.textContent = hasProfile
+        ? `👤 ${profile.name ? profile.name.slice(0, 12).toUpperCase() : "PROFILE: ON"}`
+        : "👤 PROFILE";
+    }
+
     if (commandRuleHint) {
       commandRuleHint.textContent = hasProfile
         ? 'RULE: "Am I..." = the secret. With Profile active, use "this/it" for personal questions ("Would I like this?").'
@@ -1408,7 +1422,40 @@
       });
     }
 
-    // Optional Player Profile listeners
+    // Optional Player Profile Modal & Listeners
+    function closeProfileModal() {
+      if (profileModal) profileModal.classList.remove("open");
+    }
+
+    if (profileBtn && profileModal) {
+      profileBtn.addEventListener("click", () => {
+        playSfx("click");
+        profileModal.classList.add("open");
+      });
+    }
+
+    if (closeProfileModalBtn) {
+      closeProfileModalBtn.addEventListener("click", () => {
+        playSfx("click");
+        closeProfileModal();
+      });
+    }
+
+    if (saveCloseProfileBtn) {
+      saveCloseProfileBtn.addEventListener("click", () => {
+        playSfx("click");
+        closeProfileModal();
+      });
+    }
+
+    if (profileModal) {
+      profileModal.addEventListener("click", e => {
+        if (e.target === profileModal) {
+          closeProfileModal();
+        }
+      });
+    }
+
     const profileInputs = [
       profileNameInput,
       profileAgeInput,

@@ -110,7 +110,7 @@ A lightweight browser-based 20-questions game where the player asks yes/no quest
 - [x] Add homonym/category anchor disambiguation (e.g. "Mercury" planet vs element vs god, "Titanic" ship vs film) using `category` + `type` + `hints`
 
 ### Phase 4.5: Optional Player Profile & Relational Perspective
-- [x] Optional Player Profile UI in Settings (`name`, `age`, `gender`, `country`, plus optional taste/preference tags) stored locally in `localStorage` with a Clear Profile option
+- [x] Dedicated Player Profile button in header and modal (`#profileModal` with `name`, `age`, `gender`, `country`, and taste/preference tags) stored locally in `localStorage` with a Clear Profile option
 - [x] Revamp `FLEXIBLE PERSPECTIVE RULE` in `buildSystemPrompt` into a 2-way perspective split:
   - Single-subject deduction questions (`"Am I..."`, `"Is he/it..."`) continue evaluating the forehead secret directly
   - Two-subject / relational questions (`"Would I marry this person?"`, `"Would I like this food?"`, `"Is this famous in my country?"`, `"Did this exist when I was born?"`) map `"I/my"` to the Player Profile and `"this/it/this person"` to the secret (with `confidence: "low"` on subjective taste)

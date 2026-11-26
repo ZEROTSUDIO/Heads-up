@@ -79,6 +79,12 @@
   color: #FFFFFF;
 }
 
+.header-btn.btn-profile-active {
+  background: var(--purple-light);
+  color: var(--ink) !important;
+  font-weight: 800;
+}
+
 /* ══════════ MAIN GAME GRID ══════════ */
 .game-grid {
   display: grid;
@@ -1545,13 +1551,7 @@
 .key-status-indicator.saved { color: #4EE085; }
 .key-status-indicator.empty { color: #FCD34D; }
 
-/* Player Profile Settings Block */
-.profile-settings-section {
-  border-top: 1px solid #38225C;
-  padding-top: 14px;
-  gap: 10px;
-}
-
+/* Player Profile Modal Block */
 .profile-settings-header {
   display: flex;
   justify-content: space-between;
