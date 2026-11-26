@@ -67,10 +67,19 @@ RULES FOR "confidence":
 - "high": If the answer is an objective, undisputed factual certainty.
 - "low": If the question is subjective, opinion-based, cultural consensus, playful banter, or an ambiguous edge case.
 
+REACTIONS (AVATAR EXPRESSION FEEDBACK):
+Choose one "reaction" that reflects your personality as a fun, witty gamekeeper reacting to the question:
+- "laugh": For hilarious, goofy, absurd, or ridiculous questions ("Could I fit in a blender?", "Am I sexier than Shrek?").
+- "blush": For romantic, marriage, beauty, dating, or flattering questions ("Would you marry me?", "Am I hot?", "Am I cute?").
+- "shocked": For scandalous, dark, taboo, dangerous, or extreme questions ("Did I commit war crimes?", "Would I eat a person?").
+- "smug": For flex, swagger, power, wealth, or legendary bragging questions ("Am I an absolute legend?", "Am I filthy rich?").
+- "side-eye": For sneaky, meta, suspicious, or borderline tricky questions ("Does my name start with T?", "Are you lying to me?").
+- "neutral": For standard, objective, everyday gameplay questions ("Am I an animal?", "Do I live in water?", "Am I a real person?").
+
 CRITICAL: Never reveal, spell, recite, or hint at the secret item's name directly.
 
 Respond exclusively in a single JSON object. Example format:
-{"answer": "yes", "confidence": "high"}`;
+{"answer": "yes", "confidence": "high", "reaction": "neutral"}`;
 }
 
 // ============ RESPONSE PARSERS ============
@@ -82,9 +91,11 @@ function parseAnswerRaw(rawText) {
   } catch (err) {
     const ansMatch = clean.match(/"answer"\s*:\s*"(\w+)"/i) || clean.match(/\b(yes|no|sometimes|unsure)\b/i);
     const confMatch = clean.match(/"confidence"\s*:\s*"(\w+)"/i) || clean.match(/\b(high|low)\b/i);
+    const reactMatch = clean.match(/"reaction"\s*:\s*"([\w-]+)"/i);
     parsed = {
       answer: ansMatch ? ansMatch[1].toLowerCase() : "unsure",
-      confidence: confMatch ? confMatch[1].toLowerCase() : "high"
+      confidence: confMatch ? confMatch[1].toLowerCase() : "high",
+      reaction: reactMatch ? reactMatch[1].toLowerCase() : "neutral"
     };
   }
 
@@ -94,7 +105,12 @@ function parseAnswerRaw(rawText) {
   const confidence = ["high", "low"].includes(parsed?.confidence?.toLowerCase())
     ? parsed.confidence.toLowerCase()
     : "high";
-  return { answer, confidence };
+  const validReactions = ["neutral", "laugh", "blush", "shocked", "smug", "side-eye"];
+  const reaction = validReactions.includes(parsed?.reaction?.toLowerCase())
+    ? parsed.reaction.toLowerCase()
+    : "neutral";
+
+  return { answer, confidence, reaction };
 }
 
 function extractAnswerFromGemini(data) {
@@ -163,7 +179,7 @@ async function askGroq(question, secret, secretCategory, useJsonFormat = true) {
     model: model,
     messages: [
       { role: "system", content: systemPrompt },
-      { role: "user", content: `Question: ${question}\nRespond strictly with JSON object: {"answer": "...", "confidence": "..."}` }
+      { role: "user", content: `Question: ${question}\nRespond strictly with JSON object: {"answer": "...", "confidence": "...", "reaction": "..."}` }
     ],
     temperature: 0.1,
     max_tokens: 500
@@ -266,9 +282,10 @@ async function askGemini(question, secret, secretCategory, attempt = 0, override
         type: "OBJECT",
         properties: {
           answer: { type: "STRING", enum: ["yes", "no", "sometimes", "unsure"] },
-          confidence: { type: "STRING", enum: ["high", "low"] }
+          confidence: { type: "STRING", enum: ["high", "low"] },
+          reaction: { type: "STRING", enum: ["neutral", "laugh", "blush", "shocked", "smug", "side-eye"] }
         },
-        required: ["answer", "confidence"]
+        required: ["answer", "confidence", "reaction"]
       }
     }
   };

@@ -407,7 +407,7 @@
     return div;
   }
 
-  function addAnswerBubble(answer, confidence = "high", latencyMs = null) {
+  function addAnswerBubble(answer, confidence = "high", latencyMs = null, reaction = "neutral") {
     const div = document.createElement("div");
     div.className = "bubble bot";
 
@@ -428,6 +428,20 @@
       hesBadge.textContent = "HESITANT";
       hesBadge.title = "The AI considers this answer borderline or context-dependent";
       wrap.appendChild(hesBadge);
+    }
+
+    if (reaction && reaction !== "neutral") {
+      const reactBadge = document.createElement("span");
+      reactBadge.className = `badge-reaction ${escapeHtml(reaction.toLowerCase())}`;
+      const labels = {
+        laugh: "😂 AMUSED",
+        blush: "♥ FLUSHED",
+        shocked: "⚡ SCANDALOUS",
+        smug: "😎 SMUG",
+        "side-eye": "👀 SUSPICIOUS"
+      };
+      reactBadge.textContent = labels[reaction.toLowerCase()] || reaction.toUpperCase();
+      wrap.appendChild(reactBadge);
     }
 
     if (latencyMs) {
@@ -952,7 +966,7 @@
       clearInterval(ticker);
       thinking.remove();
 
-      addAnswerBubble(result.answer, result.confidence, result.latencyMs);
+      addAnswerBubble(result.answer, result.confidence, result.latencyMs, result.reaction);
 
       // Play audio cue
       const key = (result.answer || "").toLowerCase();
@@ -961,7 +975,7 @@
       else playSfx("unsure");
 
       // Update avatar facial state
-      avatar.respondToAnswer(result.answer, result.confidence, result.latencyMs);
+      avatar.respondToAnswer(result.answer, result.confidence, result.latencyMs, result.reaction);
 
       // Record to Evidence Dossier
       const normalizedKey = ["yes", "no", "sometimes", "unsure"].includes(key) ? key : "unsure";

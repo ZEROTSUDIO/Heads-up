@@ -40,6 +40,7 @@ A lightweight browser-based 20-questions game where the player asks yes/no quest
   - Firm No (red stern frown & head shake) / Hesitant No (wavy mouth)
   - Confused / Unsure (yellow question mark eyes, zigzag mouth, head wobble)
   - Victory (star eyes & celebration bounce) / Defeat (dizzy X eyes)
+  - Party Banter Reactions: Amused Laughing (XD eyes & chuckling bounce), Flushed Romance (Heart eyes & glowing cheeks), Shocked Outrage (Bug eyes & gaping O mouth), Smug Bravado (Raised brow & swagger smirk), Side-Eye (Darting pupils & skeptical mouth)
 - [x] Visual confidence meter & latency telemetry gauge animated below the character
 - [x] 20-Question segmented progress track bar
 - [x] Web Audio API 8-bit synthesized mechanical sound effects (clicks, pings, major-triad yes chimes, buzzers, victory fanfare) with toggle in Settings

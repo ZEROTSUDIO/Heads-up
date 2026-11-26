@@ -114,6 +114,16 @@ class OracleAvatar {
                 </g>
                 <!-- Star Eyes (Victory) -->
                 <polygon class="eye-star eye-left-star" points="57,74 59,79 64,79 60,82 62,87 57,84 52,87 54,82 50,79 55,79" fill="#FCD34D" opacity="0"/>
+                <!-- Laughing Eye (> shape) -->
+                <path class="eye-laugh eye-left-laugh" d="M 49 84 L 57 77 L 49 70" stroke="#FCD34D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0"/>
+                <!-- Heart Eye (Blush / Romance) -->
+                <path class="eye-heart eye-left-heart" d="M 57 76 C 57 72 52 69 49 74 C 46 79 52 84 57 88 C 62 84 68 79 65 74 C 62 69 57 72 57 76 Z" fill="#FF65B2" stroke="#FFFFFF" stroke-width="1" opacity="0"/>
+                <!-- Shocked Eye (Wide bug-eye) -->
+                <g class="eye-shock eye-left-shock" opacity="0"><circle cx="57" cy="80" r="9" fill="#FFFFFF" stroke="#0A0812" stroke-width="2"/><circle cx="57" cy="80" r="3" fill="#FF5C5C"/></g>
+                <!-- Smug Eye (Half-lidded lid) -->
+                <path class="eye-smug eye-left-smug" d="M 48 78 Q 57 84 66 79" stroke="#7C3AED" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0"/>
+                <!-- Side-Eye Pupil -->
+                <circle class="eye-side pupil-side-left" cx="52" cy="80" r="3" fill="#0A0812" opacity="0"/>
               </g>
 
               <!-- Right Eye Group -->
@@ -134,6 +144,16 @@ class OracleAvatar {
                 </g>
                 <!-- Star Eyes (Victory) -->
                 <polygon class="eye-star eye-right-star" points="97,74 99,79 104,79 100,82 102,87 97,84 92,87 94,82 90,79 95,79" fill="#FCD34D" opacity="0"/>
+                <!-- Laughing Eye (< shape) -->
+                <path class="eye-laugh eye-right-laugh" d="M 105 84 L 97 77 L 105 70" stroke="#FCD34D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0"/>
+                <!-- Heart Eye (Blush / Romance) -->
+                <path class="eye-heart eye-right-heart" d="M 97 76 C 97 72 92 69 89 74 C 86 79 92 84 97 88 C 102 84 108 79 105 74 C 102 69 97 72 97 76 Z" fill="#FF65B2" stroke="#FFFFFF" stroke-width="1" opacity="0"/>
+                <!-- Shocked Eye (Wide bug-eye) -->
+                <g class="eye-shock eye-right-shock" opacity="0"><circle cx="97" cy="80" r="9" fill="#FFFFFF" stroke="#0A0812" stroke-width="2"/><circle cx="97" cy="80" r="3" fill="#FF5C5C"/></g>
+                <!-- Smug Eye (Half-lidded lid) -->
+                <path class="eye-smug eye-right-smug" d="M 88 79 Q 97 84 106 78" stroke="#7C3AED" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0"/>
+                <!-- Side-Eye Pupil -->
+                <circle class="eye-side pupil-side-right" cx="92" cy="80" r="3" fill="#0A0812" opacity="0"/>
               </g>
             </g>
 
@@ -157,6 +177,12 @@ class OracleAvatar {
               <path class="mouth-unsure" d="M 63 104 L 70 99 L 77 105 L 84 100 L 91 104" stroke="#FCD34D" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity="0" />
               <!-- Dead Flat Line (Lose) -->
               <line class="mouth-dead" x1="65" y1="105" x2="89" y2="105" stroke="#FF5C5C" stroke-width="3" stroke-linecap="round" opacity="0" />
+              <!-- Laughing Open Grin -->
+              <path class="mouth-laugh" d="M 64 99 Q 77 117 90 99 Z" fill="#FCD34D" stroke="#0A090D" stroke-width="1.5" opacity="0" />
+              <!-- Shocked Gaping 'O' Mouth -->
+              <ellipse class="mouth-shock" cx="77" cy="105" rx="6" ry="8" fill="#0A0812" stroke="#FF5C5C" stroke-width="2.5" opacity="0" />
+              <!-- Smug Cocky Smirk -->
+              <path class="mouth-smug" d="M 66 104 Q 77 103 89 98" stroke="#C06BF0" stroke-width="3" stroke-linecap="round" fill="none" opacity="0" />
             </g>
           </g>
         </svg>
@@ -278,6 +304,56 @@ class OracleAvatar {
         this.scheduleIdleReset(4500);
         break;
 
+      case "laugh":
+        if (this.statusTextEl) this.statusTextEl.textContent = `AMUSED // LOL [${(answer || "YES").toUpperCase()}]`;
+        if (this.confLabelEl) this.confLabelEl.textContent = confidence === "high" ? "100% CERTAIN" : "50% LOW";
+        if (this.confBarEl) {
+          this.confBarEl.style.width = confidence === "high" ? "100%" : "60%";
+          this.confBarEl.className = "telemetry-gauge-fill fill-amber";
+        }
+        this.scheduleIdleReset(5000);
+        break;
+
+      case "blush":
+        if (this.statusTextEl) this.statusTextEl.textContent = `FLUSHED // ♥ [${(answer || "YES").toUpperCase()}]`;
+        if (this.confLabelEl) this.confLabelEl.textContent = confidence === "high" ? "100% CERTAIN" : "50% LOW";
+        if (this.confBarEl) {
+          this.confBarEl.style.width = confidence === "high" ? "100%" : "70%";
+          this.confBarEl.className = "telemetry-gauge-fill fill-lilac";
+        }
+        this.scheduleIdleReset(5000);
+        break;
+
+      case "shocked":
+        if (this.statusTextEl) this.statusTextEl.textContent = `SCANDALOUS // OMG [${(answer || "NO").toUpperCase()}]`;
+        if (this.confLabelEl) this.confLabelEl.textContent = confidence === "high" ? "100% CERTAIN" : "50% LOW";
+        if (this.confBarEl) {
+          this.confBarEl.style.width = confidence === "high" ? "100%" : "50%";
+          this.confBarEl.className = "telemetry-gauge-fill fill-red";
+        }
+        this.scheduleIdleReset(5000);
+        break;
+
+      case "smug":
+        if (this.statusTextEl) this.statusTextEl.textContent = `BRAVADO // SMUG [${(answer || "YES").toUpperCase()}]`;
+        if (this.confLabelEl) this.confLabelEl.textContent = confidence === "high" ? "100% CERTAIN" : "60% LOW";
+        if (this.confBarEl) {
+          this.confBarEl.style.width = confidence === "high" ? "100%" : "75%";
+          this.confBarEl.className = "telemetry-gauge-fill fill-purple";
+        }
+        this.scheduleIdleReset(5000);
+        break;
+
+      case "side-eye":
+        if (this.statusTextEl) this.statusTextEl.textContent = `SKEPTICAL // SUS [${(answer || "UNSURE").toUpperCase()}]`;
+        if (this.confLabelEl) this.confLabelEl.textContent = confidence === "high" ? "80% READ" : "30% SUSPICIOUS";
+        if (this.confBarEl) {
+          this.confBarEl.style.width = confidence === "high" ? "80%" : "30%";
+          this.confBarEl.className = "telemetry-gauge-fill fill-amber";
+        }
+        this.scheduleIdleReset(5000);
+        break;
+
       case "win":
         if (this.statusTextEl) this.statusTextEl.textContent = "VICTORY // TARGET CONFIRMED!";
         if (this.confLabelEl) this.confLabelEl.textContent = "100% ACCURACY";
@@ -318,7 +394,15 @@ class OracleAvatar {
     }, delayMs);
   }
 
-  respondToAnswer(answer, confidence = "high", latencyMs = null) {
+  respondToAnswer(answer, confidence = "high", latencyMs = null, reaction = "neutral") {
+    const reactKey = (reaction || "").toLowerCase();
+    const validReactions = ["laugh", "blush", "shocked", "smug", "side-eye"];
+
+    if (validReactions.includes(reactKey)) {
+      this.setState(reactKey, { answer, confidence, latencyMs, reaction: reactKey });
+      return;
+    }
+
     const ansKey = (answer || "unsure").toLowerCase();
     const isHigh = confidence === "high";
 
