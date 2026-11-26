@@ -243,7 +243,7 @@
           </div>
 
           <div class="deck-secondary-row">
-            <span>RULE: Ask yes/no questions from any perspective ("Am I...", "Is he/it...").</span>
+            <span id="commandRuleHint">RULE: Ask yes/no questions from any perspective ("Am I...", "Is he/it...").</span>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
               <button id="intelBtn" class="command-btn btn-intel" type="button" disabled title="Consumes 2 inquiry slots for a classified satellite clue">
                 <span>📡 INTEL (-2Q)</span>
@@ -443,6 +443,45 @@
             <div class="settings-help">Web Audio API mechanical clicks, chimes, and fanfares</div>
           </div>
           <input id="sfxToggle" type="checkbox" checked style="width: 18px; height: 18px; accent-color: var(--purple-light); cursor: pointer;">
+        </div>
+
+        <!-- Optional Player Profile -->
+        <div class="settings-group profile-settings-section">
+          <div class="profile-settings-header">
+            <div>
+              <div class="settings-label">👤 PLAYER PROFILE (OPTIONAL)</div>
+              <div id="profileStatusBadge" class="key-status-indicator empty">Neutral (No profile set)</div>
+            </div>
+            <button id="clearProfileBtn" type="button" class="header-btn" style="padding: 4px 10px; font-size: 10px;">CLEAR PROFILE</button>
+          </div>
+
+          <div class="profile-fields-grid">
+            <div class="profile-field">
+              <label class="profile-sublabel" for="profileName">Name / Nickname</label>
+              <input id="profileName" type="text" class="settings-input" placeholder="e.g. Alex">
+            </div>
+            <div class="profile-field">
+              <label class="profile-sublabel" for="profileAge">Age</label>
+              <input id="profileAge" type="number" min="1" max="120" class="settings-input" placeholder="e.g. 25">
+            </div>
+            <div class="profile-field">
+              <label class="profile-sublabel" for="profileGender">Gender</label>
+              <input id="profileGender" type="text" class="settings-input" placeholder="e.g. Male, Female, Non-binary">
+            </div>
+            <div class="profile-field">
+              <label class="profile-sublabel" for="profileCountry">Country / Origin</label>
+              <input id="profileCountry" type="text" class="settings-input" placeholder="e.g. Indonesia, Japan">
+            </div>
+          </div>
+
+          <div class="profile-field">
+            <label class="profile-sublabel" for="profilePreferences">Tastes, Vibe &amp; Preferences</label>
+            <input id="profilePreferences" type="text" class="settings-input" placeholder="e.g. loves spicy food, sci-fi, cats; dislikes horror">
+          </div>
+
+          <p class="settings-help">
+            100% optional &amp; saved in browser <code>localStorage</code>. Lets ORACLE-ZERO personalize relational questions like <em>"Would I like this food?"</em> or <em>"Is this famous in my country?"</em>.
+          </p>
         </div>
 
       </div>

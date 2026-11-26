@@ -227,6 +227,16 @@
   const testKeyResult = document.getElementById("testKeyResult");
   const refreshGroqModelsBtn = document.getElementById("refreshGroqModelsBtn");
 
+  // Player Profile Elements
+  const profileNameInput = document.getElementById("profileName");
+  const profileAgeInput = document.getElementById("profileAge");
+  const profileGenderInput = document.getElementById("profileGender");
+  const profileCountryInput = document.getElementById("profileCountry");
+  const profilePreferencesInput = document.getElementById("profilePreferences");
+  const clearProfileBtn = document.getElementById("clearProfileBtn");
+  const profileStatusBadge = document.getElementById("profileStatusBadge");
+  const commandRuleHint = document.getElementById("commandRuleHint");
+
   // ============ WEB AUDIO API SYNTHESIZER ============
   let audioCtx = null;
 
@@ -941,6 +951,14 @@
     if (chooseDeckBtn) chooseDeckBtn.addEventListener("click", () => openDeckModal());
   }
 
+  function getCurrentSecretMeta() {
+    return {
+      type: currentSecretItem?.type || "entity",
+      hints: currentSecretItem?.hints || [],
+      playerProfile: getPlayerProfile()
+    };
+  }
+
   async function handleAsk() {
     const question = gameInput.value.trim();
     if (!question || busy || gameOver || secret === null) return;
@@ -962,7 +980,7 @@
     }, 1000);
 
     try {
-      const result = await askAI(question, secret, secretCategory);
+      const result = await askAI(question, secret, secretCategory, getCurrentSecretMeta());
       clearInterval(ticker);
       thinking.remove();
 
@@ -1067,7 +1085,7 @@
     const summary = `Confirmed: [${confirmed || "None"}]. Ruled Out: [${ruledOut || "None"}].`;
 
     try {
-      const result = await askAIClue(secret, secretCategory, summary);
+      const result = await askAIClue(secret, secretCategory, summary, getCurrentSecretMeta());
       clearInterval(ticker);
       thinking.remove();
 
@@ -1157,6 +1175,45 @@
     sfxEnabled = savedSfx !== "false";
     if (sfxToggle) sfxToggle.checked = sfxEnabled;
     if (soundToggleIcon) soundToggleIcon.textContent = sfxEnabled ? "🔊" : "🔇";
+
+    // Optional Player Profile
+    const profile = getPlayerProfile();
+    if (profileNameInput) profileNameInput.value = profile.name;
+    if (profileAgeInput) profileAgeInput.value = profile.age;
+    if (profileGenderInput) profileGenderInput.value = profile.gender;
+    if (profileCountryInput) profileCountryInput.value = profile.country;
+    if (profilePreferencesInput) profilePreferencesInput.value = profile.preferences;
+    updateProfileUI(profile);
+  }
+
+  function readProfileFromInputs() {
+    return {
+      name: profileNameInput?.value || "",
+      age: profileAgeInput?.value || "",
+      gender: profileGenderInput?.value || "",
+      country: profileCountryInput?.value || "",
+      preferences: profilePreferencesInput?.value || ""
+    };
+  }
+
+  function updateProfileUI(profile) {
+    const summary = formatPlayerProfileContext(profile);
+    const hasProfile = summary.length > 0;
+
+    if (profileStatusBadge) {
+      profileStatusBadge.textContent = hasProfile
+        ? `✓ Profile active (${profile.name || profile.country || "Personalized"})`
+        : "Neutral (No profile set)";
+      profileStatusBadge.className = hasProfile
+        ? "key-status-indicator saved"
+        : "key-status-indicator empty";
+    }
+
+    if (commandRuleHint) {
+      commandRuleHint.textContent = hasProfile
+        ? 'RULE: "Am I..." = the secret. With Profile active, use "this/it" for personal questions ("Would I like this?").'
+        : 'RULE: Ask yes/no questions from any perspective ("Am I...", "Is he/it...").';
+    }
   }
 
   async function populateGroqModels(apiKey) {
@@ -1348,6 +1405,31 @@
         sfxEnabled = sfxToggle.checked;
         setStorage(STORAGE_KEY_SFX, sfxEnabled ? "true" : "false");
         if (sfxEnabled) playSfx("click");
+      });
+    }
+
+    // Optional Player Profile listeners
+    const profileInputs = [
+      profileNameInput,
+      profileAgeInput,
+      profileGenderInput,
+      profileCountryInput,
+      profilePreferencesInput
+    ].filter(Boolean);
+
+    profileInputs.forEach(input => {
+      input.addEventListener("input", () => {
+        const saved = savePlayerProfile(readProfileFromInputs());
+        updateProfileUI(saved);
+      });
+    });
+
+    if (clearProfileBtn) {
+      clearProfileBtn.addEventListener("click", () => {
+        playSfx("click");
+        const cleared = clearPlayerProfile();
+        profileInputs.forEach(input => { input.value = ""; });
+        updateProfileUI(cleared);
       });
     }
 

@@ -1545,6 +1545,48 @@
 .key-status-indicator.saved { color: #4EE085; }
 .key-status-indicator.empty { color: #FCD34D; }
 
+/* Player Profile Settings Block */
+.profile-settings-section {
+  border-top: 1px solid #38225C;
+  padding-top: 14px;
+  gap: 10px;
+}
+
+.profile-settings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.profile-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.profile-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-sublabel {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--purple-soft);
+  opacity: 0.85;
+}
+
+@media (max-width: 520px) {
+  .profile-fields-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ══════════ ARCADE STANDBY HERO (WELCOME SCREEN) ══════════ */
 .deck-welcome-hero {
   display: flex;

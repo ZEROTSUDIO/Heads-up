@@ -97,14 +97,24 @@ A lightweight browser-based 20-questions game where the player asks yes/no quest
 - [x] Custom Theme Synthesizer: UI input allowing players to enter *any* custom theme (e.g. "90s Cartoon Villains", "Video Games", "Marvel", "Mythological Gods")
 - [x] Graceful zero-network offline fallback to `data/words.json` if API is unreachable
 
-### Phase 4.3: Tiered Difficulty Modes & Mechanics
-- [ ] 3-Tier difficulty selector (🟢 Rookie / 🟡 Detective / 🔴 Cyber-Sleuth) in Deck Selection modal
-- [ ] Tier-based inquiry limits (20 questions for Rookie/Detective, 15 questions for Cyber-Sleuth)
-- [ ] Tier-scaled satellite intel costs (1 inquiry for Rookie, 2 for Detective, 3 for Cyber-Sleuth)
-- [ ] Scorecard difficulty multiplier bonus (+500 PTS for Cyber-Sleuth)
+### Phase 4.3: Tiered Difficulty Modes & Mechanics [CANCELLED]
+- ~~3-Tier difficulty selector (🟢 Rookie / 🟡 Detective / 🔴 Cyber-Sleuth) in Deck Selection modal~~ (Cancelled per user decision)
+- ~~Tier-based inquiry limits (20 questions for Rookie/Detective, 15 questions for Cyber-Sleuth)~~
+- ~~Tier-scaled satellite intel costs (1 inquiry for Rookie, 2 for Detective, 3 for Cyber-Sleuth)~~
+- ~~Scorecard difficulty multiplier bonus (+500 PTS for Cyber-Sleuth)~~
 
 ### Phase 4.4: Context Disambiguation Prompts (Fiction vs Reality)
-- [ ] Inject item `type` metadata into AI system prompt to resolve canon vs real-world ontological questions
+- [x] Standardize ontological `type` taxonomy in dynamic secret generation (`real_person`, `fictional_character`, `mythological_entity`, `living_organism`, `geography`, `fictional_location`, `inanimate_object`, `fictional_object`, `media_or_brand`, `concept_or_event`)
+- [x] Pass `secretMeta` (`type` and disambiguating `hints`) from `js/game.js` (`handleAsk`, `handleRequestIntel`) into `js/ai.js` (`askAI`, `askAIClue`)
+- [x] Inject **Ontological Disambiguation (Fiction vs Reality)** rules into `buildSystemPrompt` & `buildCluePrompt` to cleanly separate real-world existence questions ("Am I real?", "Am I from a movie?") from in-universe canon questions ("Am I human?", "Am I alive?", "Do I have powers?")
+- [x] Add homonym/category anchor disambiguation (e.g. "Mercury" planet vs element vs god, "Titanic" ship vs film) using `category` + `type` + `hints`
+
+### Phase 4.5: Optional Player Profile & Relational Perspective
+- [x] Optional Player Profile UI in Settings (`name`, `age`, `gender`, `country`, plus optional taste/preference tags) stored locally in `localStorage` with a Clear Profile option
+- [x] Revamp `FLEXIBLE PERSPECTIVE RULE` in `buildSystemPrompt` into a 2-way perspective split:
+  - Single-subject deduction questions (`"Am I..."`, `"Is he/it..."`) continue evaluating the forehead secret directly
+  - Two-subject / relational questions (`"Would I marry this person?"`, `"Would I like this food?"`, `"Is this famous in my country?"`, `"Did this exist when I was born?"`) map `"I/my"` to the Player Profile and `"this/it/this person"` to the secret (with `confidence: "low"` on subjective taste)
+- [x] Contextual command-deck hint when a Player Profile is active, suggesting `"this/it/this person"` for personal comparison questions without breaking classic `"Am I..."` play
 
 ---
 
